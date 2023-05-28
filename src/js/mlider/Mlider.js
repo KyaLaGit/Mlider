@@ -36,7 +36,7 @@ export class Mlider {
         this.#checkElements()
         this.#checkOptions(this.opt)
         this.#optionsRegulation()
-        console.log("this.opt:", this.opt.slide.preView)
+        console.log("this.opt:", this.opt)
 
         if (this.validKeyElements) {
             this.#generate()

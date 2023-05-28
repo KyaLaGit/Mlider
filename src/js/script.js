@@ -1,43 +1,234 @@
-import * as dataInit from './module.js'
+// MLIDER------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+import { Mlider } from './mlider/Mlider.js'
+window.onload = () => {
 
-function mrange() {
-    const mrange = document.querySelector('[data-mrange]')
+    const mlider1 = new Mlider(
+        // Classes for slider elements
+        {
+            sliderSelector: '#mlider-1',
+            slideSelector: '.slide-mlider',
 
-    if (mrange) {
-        const dot = document.querySelector('[data-mrange-dot]')
+            prevBtnSelector: '.mlider__btn_prev',
+            nextBtnSelector: '.mlider__btn_next',
+            dotSelector: '.mlider__dot',
+            counterSelector: '.mlider__counter',
+        },
+        // Options
+        {
+            infinity: true,
+            columnGap: 20,
+            transitionTime: 500,
+            // currentClass: 'asd',
+            counterInDot: true,
+            keyboardEvent: true,
+            swipeEvent: true,
+            swipeEventOpt: {
+                sensitivity: 2,
+            },
+            slideGroup: 1,
+            autoViewSlide: false,
+            autoViewSlideOpt: {
+                time: 0,
+                direction: 'right',
+            },
+            slide: {
+                preView: [2.2, [35, 45]],
+                position: 'center',
+                // step: 1,
+            },
+            breakpoint: {
+                1024: {
+                    slide: {
+                        preView: ['2', [2, 4]],
+                        position: 'center',
+                        // step: 1,
+                    },
+                },
+                768: {
 
-        document.addEventListener('mousedown', eventFn)
-        document.addEventListener('mousemove', eventFn)
-        document.addEventListener('mouseup', eventFn)
-        let move = false
-        let moveX = -50
-        function eventFn(e) {
-            const target = e.target
-            const type = e.type
-
-            if (!move && target.closest('[data-mrange-dot]') && type === 'mousedown') {
-                move = true
-            } else if (move && type === 'mousemove') {
-                console.log(e.movementX)
-                // moveX += e.movementX * 10
-                moveX += e.movementX * 100 / 5
-                // console.log(e.movementX * 100 / 25)
-
-                dot.style.cssText += `transform: translate(${moveX}%, -50%);`
-            } else if (move && type === 'mouseup') {
-                move = false
-            }
+                }
+            },
         }
+    )
 
-    }
+    // const mlider2 = new Mlider(
+    //     // Classes for slider elements
+    //     {
+    //         sliderSelector: '#mlider-2',
+    //         slideSelector: '.slide-mlider',
+
+    //         prevBtnSelector: '.mlider__btn_prev',
+    //         nextBtnSelector: '.mlider__btn_next',
+    //         dotSelector: '.mlider__dot',
+    //         counterSelector: '.mlider__counter',
+    //     },
+
+    //     // Slider options
+    //     {
+    //         // loop[true or false]
+    //         infinity: true,
+    //         // slide width [auto or castom](castom --> can use preViewSlides)
+    //         slideSize: 'auto',
+    //         // visible slides [quantity] (only with slideSize: custom)
+    //         preViewSlides: 3,
+    //         // slide position in visible area[left, center, right or auto]
+    //         slidePosition: 'center',
+    //         // save slide size
+    //         saveSlideSize: false,
+    //         // distance between slides[px]
+    //         columnGap: 20,
+
+    //         // time of animation(change slide)[ms]
+    //         animationTime: 500,
+
+    //         // current class
+    //         currentClass: 'current',
+
+    //         // include counter in dots(index number in dot)[true or false]
+    //         counterInDots: true,
+    //         // keyboard events
+    //         keyboard: true,
+    //         // slides group[0 = auto]
+    //         slidesGroup: 0,
+    //         // interval auto view slides(ms)[0 - false]
+    //         autoViewSlideTime: 0,
+    //     }
+    // )
+
 }
-// mrange()
+// const mlider3 = new Mlider(
+//     // Classes for slider elements
+//     {
+//         sliderSelector: '#mlider-3',
+//         slideSelector: '.slide-mlider',
 
+//         prevBtnSelector: '.mlider__btn_prev',
+//         nextBtnSelector: '.mlider__btn_next',
+//         dotSelector: '.mlider__dot',
+//         counterSelector: '.mlider__counter',
+//     },
 
+//     // Slider options
+//     {
+//         // loop[true or false]
+//         infinity: true,
+//         // slide width [auto or castom](castom --> can use preViewSlides)
+//         slideSize: 'auto',
+//         // visible slides [quantity] (only with slideSize: custom)
+//         preViewSlides: 3,
+//         // slide position in visible area[left, center, right or auto]
+//         slidePosition: 'center',
+//         // save slide size
+//         saveSlideSize: false,
+//         // distance between slides[px]
+//         columnGap: 20,
 
+//         // time of animation(change slide)[ms]
+//         animationTime: 500,
 
+//         // current class
+//         currentClass: 'current',
 
+//         // include counter in dots(index number in dot)[true or false]
+//         counterInDots: true,
+//         // keyboard events
+//         keyboard: true,
+//         // slides group[0 = auto]
+//         slidesGroup: 0,
+//         // interval auto view slides(ms)[0 - false]
+//         autoViewSlideTime: 2000,
+//     }
+// )
 
+// const mlider4 = new Mlider(
+//     // Classes for slider elements
+//     {
+//         sliderSelector: '#mlider-4',
+//         slideSelector: '.slide-mlider',
 
+//         prevBtnSelector: '.mlider__btn_prev',
+//         nextBtnSelector: '.mlider__btn_next',
+//         dotSelector: '.mlider__dot',
+//         counterSelector: '.mlider__counter',
+//     },
 
+//     // Slider options
+//     {
+//         // loop[true or false]
+//         infinity: true,
+//         // slide width [auto or castom](castom --> can use preViewSlides)
+//         slideSize: 'auto',
+//         // visible slides [quantity] (only with slideSize: custom)
+//         preViewSlides: 3,
+//         // slide position in visible area[left, center, right or auto]
+//         slidePosition: 'center',
+//         // save slide size
+//         saveSlideSize: false,
+//         // distance between slides[px]
+//         columnGap: 20,
 
+//         // time of animation(change slide)[ms]
+//         animationTime: 500,
+
+//         // current class
+//         currentClass: 'current',
+
+//         // include counter in dots(index number in dot)[true or false]
+//         counterInDots: true,
+//         // keyboard events
+//         keyboard: true,
+//         // slides group[0 = auto]
+//         slidesGroup: 0,
+//         // interval auto view slides(ms)[0 - false]
+//         autoViewSlideTime: 2000,
+//     }
+// )
+
+// const mlider5 = new Mlider(
+//     // Classes for slider elements
+//     {
+//         sliderSelector: '#mlider-5',
+//         slideSelector: '.slide-mlider',
+
+//         prevBtnSelector: '.mlider__btn_prev',
+//         nextBtnSelector: '.mlider__btn_next',
+//         dotSelector: '.mlider__dot',
+//         counterSelector: '.mlider__counter',
+//     },
+
+//     // Slider options
+//     {
+//         // loop[true or false]
+//         infinity: true,
+//         // slide width [auto or castom](castom --> can use preViewSlides)
+//         slideSize: 'castom',
+//         // visible slides [quantity] (only with slideSize: custom)
+//         preViewSlides: 2,
+//         // slide position in visible area[left, center, right or auto]
+//         slidePosition: 'center',
+//         // save slide size
+//         saveSlideSize: false,
+//         // distance between slides[px]
+//         columnGap: 20,
+
+//         // time of animation(change slide)[ms]
+//         animationTime: 500,
+
+//         // current class
+//         currentClass: 'current',
+
+//         // include counter in dots(index number in dot)[true or false]
+//         counterInDots: true,
+//         // keyboard events
+//         keyboard: true,
+//         // slides group[0 = auto]
+//         slidesGroup: 0,
+//         // interval auto view slides(ms)[0 - false]
+//         autoViewSlideTime: 2000,
+//     }
+// )
+
+// DDMENU ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// import { dataDDMenu } from './modules/data.js'
+// dataDDMenu()
