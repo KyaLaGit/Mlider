@@ -1,0 +1,75 @@
+/*------------------------------------------------------------btn------------------------------------------------------------*/
+
+/*------------------------------------------------------------text------------------------------------------------------------*/
+
+/*------------------------------------------------------------link------------------------------------------------------------*/
+
+/*------------------------------------------------------------main------------------------------------------------------------*/
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    height: 100%;
+
+    &.lock {
+        overflow: hidden;
+    }
+}
+
+.main {
+    flex: 1 1 auto;
+}
+
+.main {
+    &__container {
+        width: 100%;
+        height: 100vh;
+    }
+}
+
+// .mrange {
+//     // .mrange__line
+//     &__line {
+//         position: relative;
+
+//         height: 2px;
+//         width: 100px;
+//         background: rgb(160, 160, 160);
+//         border-radius: 3px;
+//     }
+//     // .mrange__progress
+//     // &__progress {
+//     //     position: absolute;
+//     //     top: 0;
+//     //     left: 0;
+//     //     width: 42%;
+//     //     height: 100%;
+//     //     background: rgb(253, 107, 40);
+//     //     border-radius: 3px;
+//     // }
+
+//     // .mrange__dot
+//     &__dot {
+//         position: absolute;
+//         top: 50%;
+//         left: 0;
+//         width: 5px;
+//         height: 5px;
+//         background: rgb(255, 255, 255);
+//         border-radius: 50%;
+//         box-shadow: 0px 0px 5px #535353;
+
+//         transform: translate(-50%, -50%);
+//         cursor: pointer;
+//     }
+//     // .mrange__min
+//     &__min {
+//     }
+//     // .mrange__max
+//     &__max {
+//     }
+//     // .mrange__current
+//     &__current {
+//     }
+// }

@@ -1,0 +1,20 @@
+/*------------------------------------------------------------text gradient------------------------------------------------------------*/
+span {
+    background: linear-gradient(90deg, rgba(132, 147, 179, 1) 0%, rgba(178, 101, 158, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/*------------------------------------------------------------text overflow------------------------------------------------------------*/
+p {
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/*------------------------------------------------------------text overflow lines------------------------------------------------------------*/
+p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

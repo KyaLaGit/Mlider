@@ -1,0 +1,49 @@
+.select {
+    position: relative;
+    z-index: 50;
+    cursor: pointer;
+
+    &.open {
+        .select__list {
+            visibility: visible;
+            opacity: 1;
+            top: calc(100% + calc(5 / 16 * 1rem));
+            pointer-events: all;
+        }
+    }
+
+    &__link {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    &__list {
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        background: rgb(224, 224, 224);
+
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.2s ease;
+        pointer-events: none;
+
+        transform: translate(-50%, 0);
+    }
+
+    &__item {
+        padding: calc(5 / 16 * 1rem) calc(10 / 16 * 1rem);
+        cursor: pointer;
+        user-select: none;
+
+        &.selected {
+            background: rgb(179, 179, 179);
+        }
+
+        @media (any-hover: hover) {
+            &:hover {
+                background: rgb(179, 179, 179);
+            }
+        }
+    }
+}

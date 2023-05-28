@@ -1,0 +1,32 @@
+.tab {
+    &__header {
+        display: flex;
+    }
+
+    &__link {
+        padding: calc(5 / 16 * 1rem) calc(15 / 16 * 1rem);
+        cursor: pointer;
+        user-select: none;
+
+        @media (any-hover: hover) {
+            &:hover {
+                text-decoration-line: underline;
+            }
+        }
+
+        &.active {
+            text-decoration-line: underline;
+        }
+    }
+
+    &__content {
+    }
+
+    &__item {
+        display: none;
+
+        &.open {
+            display: block;
+        }
+    }
+}

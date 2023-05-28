@@ -1,0 +1,86 @@
+.checkbox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+
+    label {
+        user-select: none;
+        cursor: pointer;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 15px;
+            height: 15px;
+
+            border: 1px solid #000;
+            border-radius: 5px;
+
+            transform: translate(0px, -50%);
+            transition: all 0.1s ease;
+        }
+    }
+
+    input {
+        width: 15px;
+        height: 15px;
+        opacity: 0;
+
+        @media (any-hover: hover) {
+            &:hover:not(:checked) + label::before {
+                border: 1px solid rgb(160, 160, 160);
+            }
+        }
+
+        &:checked + label::before {
+            background: rgb(228, 228, 228) url('../img/icon/x.svg');
+            background-size: contain;
+        }
+    }
+}
+.radio-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+
+    label {
+        user-select: none;
+        cursor: pointer;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 14px;
+            height: 14px;
+
+            border: 1px solid #000;
+            border-radius: 50%;
+
+            transform: translate(0px, -50%);
+            transition: all 0.1s ease;
+        }
+    }
+
+    input {
+        width: 15px;
+        height: 15px;
+        opacity: 0;
+
+        @media (any-hover: hover) {
+            &:hover:not(:checked) + label::before {
+                border: 1px solid rgb(160, 160, 160);
+            }
+        }
+
+        &:checked + label::before {
+            background: rgb(228, 228, 228) url('../img/icon/x.svg');
+            background-size: contain;
+        }
+    }
+}

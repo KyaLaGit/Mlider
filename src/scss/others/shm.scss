@@ -1,0 +1,40 @@
+.shm {
+    @media (max-width: calc(424.98 / 16 * 1rem)) {
+        &.close {
+            .shm__link {
+                &::after {
+                    transform: translate(0px, -50%) rotate(0deg);
+                }
+            }
+            .shm__content-wrap {
+                max-height: 0;
+            }
+        }
+
+        &__link {
+            line-height: 150%;
+            user-select: none;
+            cursor: pointer;
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 0;
+                border-left: calc(4 / 16 * 1rem) solid transparent;
+                border-right: calc(4 / 16 * 1rem) solid transparent;
+                border-top: calc(6 / 16 * 1rem) solid $blueColor;
+
+                transform: translate(0px, -50%) rotate(180deg);
+                transition: all 0.2s ease;
+            }
+        }
+
+        &__content-wrap {
+            overflow: hidden;
+
+            transition: all 0.4s ease;
+        }
+    }
+}
