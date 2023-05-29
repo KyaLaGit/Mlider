@@ -32,20 +32,24 @@ window.onload = () => {
                 direction: 'right',
             },
             slide: {
-                preView: [2.2, [35, 45]],
+                preView: [1.3, [35, 45]],
                 position: 'center',
                 // step: 1,
             },
             breakpoint: {
                 1024: {
                     slide: {
-                        preView: ['2', [2, 4]],
-                        position: 'center',
-                        // step: 1,
+                        preView: [[30, 20, 30]],
+                        position: 'right',
+                        step: 1,
                     },
                 },
                 768: {
-
+                    slide: {
+                        preView: [2, 3],
+                        position: 'left',
+                        // step: 1,
+                    },
                 }
             },
         }

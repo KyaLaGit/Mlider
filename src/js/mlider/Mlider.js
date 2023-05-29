@@ -29,14 +29,13 @@ export class Mlider {
                 direction: 'right',
             },
             breakpoint: {
-
             },
         }
 
         this.#checkElements()
         this.#checkOptions(this.opt)
         this.#optionsRegulation()
-        console.log("this.opt:", this.opt)
+        console.log("this.opt:", this.opt.breakpoint)
 
         if (this.validKeyElements) {
             this.#generate()
@@ -68,8 +67,8 @@ export class Mlider {
     }
 
     // ugly govno(peredelivay)
-    #checkSelector(selector, name) {
 
+    #checkSelector(selector, name) {
         if (selector !== undefined && selector !== null) {
             if (typeof selector === 'string') {
                 selector = selector.trim()
@@ -111,14 +110,14 @@ export class Mlider {
                     options[key] = this.#checkBooleanOpt(options[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'object') {
                     this.#checkOptions(options[key], defOpt[key], name)
+                } else if (typeof defOpt[key] === 'undefined') {
+                    if (name.includes('breakpoint')) {
+                        if (this.#checkNumberOpt(key, 0, name) === 0) options[key] = {}
+                        else this.#checkOptions(options[key], this.defualtOptions, name)
+                    } else {
+                        this.#errorLog(name, 'udefined value')
+                    }
                 }
-                // else if (typeof defOpt[key] === 'undefined') {
-                //     if (name.includes('breakpoint')) {
-                //         options[key] = this.#checkNumberOpt(options[key], 0, name)
-                //     } else {
-                //     }
-                //     this.#errorLog(name, 'udefined value')
-                // }
             }
         } else {
             this.#errorLog(innerName, 'invalid value(!use defualt value!)')
@@ -127,17 +126,30 @@ export class Mlider {
 
     #optionsRegulation() {
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
-        this.opt.slide = Object.assign(Object.assign({}, this.defualtOptions.slide), this.opt.slide)
         this.opt.swipeEventOpt = Object.assign(Object.assign({}, this.defualtOptions.swipeEventOpt), this.opt.swipeEventOpt)
         this.opt.autoViewSlideOpt = Object.assign(Object.assign({}, this.defualtOptions.autoViewSlideOpt), this.opt.autoViewSlideOpt)
+        this.#slideOptSearch(this.opt)
+    }
 
-        if (!Array.isArray(this.opt.slide.preView)) this.opt.slide.preView = [this.opt.slide.preView]
-        if (!Array.isArray(this.opt.slide.step)) this.opt.slide.step = [this.opt.slide.step]
+    #slideOptSearch(opt) {
+        for (let key in opt) {
+            if (key === 'slide') {
+                opt[key] = Object.assign(Object.assign({}, this.defualtOptions.slide), opt[key])
+                opt[key] = this.#slideOptRegulation(opt[key])
+            } else if (typeof opt[key] === 'object' && !Array.isArray(opt[key])) {
+                this.#slideOptSearch(opt[key])
+            }
+        }
+    }
 
-        if (this.opt.slide.preView.flat().includes(0)) this.opt.slide.preView = [1]
-        if (this.opt.slide.step.flat().includes(0)) this.opt.slide.step = this.opt.slide.preView
+    #slideOptRegulation(slideOpt) {
+        if (!Array.isArray(slideOpt.preView)) slideOpt.preView = [slideOpt.preView]
+        if (!Array.isArray(slideOpt.step)) slideOpt.step = [slideOpt.step]
 
-        this.opt.slide.preView = this.opt.slide.preView.map(opt => {
+        if (slideOpt.preView.flat().includes(0)) slideOpt.preView = [1]
+        if (slideOpt.step.flat().includes(0)) slideOpt.step = slideOpt.preView
+
+        slideOpt.preView = slideOpt.preView.map(opt => {
             if (!Array.isArray(opt)) {
                 const val = opt === 0 ? 1 : opt
                 opt = []
@@ -149,10 +161,11 @@ export class Mlider {
             }
             return opt
         })
-        this.opt.slide.step = this.opt.slide.step.map(opt => Array.isArray(opt) ? opt.length : Math.floor(opt))
-        if (this.opt.slide.step.every(opt => opt === this.opt.slide.step[0])) this.opt.slide.step = [this.opt.slide.step[0]]
-    }
+        slideOpt.step = slideOpt.step.map(opt => Array.isArray(opt) ? opt.length : Math.floor(opt))
+        if (slideOpt.step.every(opt => opt === slideOpt.step[0])) slideOpt.step = [slideOpt.step[0]]
 
+        return slideOpt
+    }
 
 
 
@@ -163,7 +176,7 @@ export class Mlider {
             return opt.map(opt => {
                 return this.#checkNumberOpt(opt, defOpt, name)
             })
-        } else if (typeof opt === 'number') return Math.abs(opt)
+        } else if (typeof Number(opt) === 'number' && !isNaN(Number(opt))) return Math.abs(Number(opt))
         this.#errorLog(name, 'invalid value(!use defualt value!)')
         return defOpt
     }
@@ -177,11 +190,11 @@ export class Mlider {
     #checkStringOpt(opt, defOpt, name) {
         if (typeof opt === 'string') {
             opt = opt.trim()
-            if (name === 'slidePosition') {
+            if (name.toLowerCase().includes('position')) {
                 if (opt === 'left' || opt === 'center' || opt === 'right' || opt === 'auto') {
                     return opt
                 }
-            } else if (name === 'autoViewSlideOptDirection') {
+            } else if (name.toLowerCase().includes('direction')) {
                 if (opt === 'left' || opt === 'right') {
                     return opt
                 }

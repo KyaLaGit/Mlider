@@ -8,7 +8,7 @@
   "author": "Max",
   "license": "ISC",
   "devDependencies": {
-    "browser-sync": "^2.27.12",
+    "browser-sync": "^2.29.3",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-clean": "^0.4.0",
@@ -22,8 +22,8 @@
     "gulp-size": "^4.0.1",
     "gulp-ttf2woff": "^1.1.1",
     "gulp-ttf2woff2": "^4.0.1",
-    "sass": "^1.58.3",
-    "webpack": "^5.75.0",
+    "sass": "^1.62.1",
+    "webpack": "^5.84.1",
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {}
