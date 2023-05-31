@@ -21,7 +21,7 @@ window.onload = () => {
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
-            swipeEvent: true,
+            swipeEvent: false,
             swipeEventOpt: {
                 sensitivity: 2,
             },
@@ -41,7 +41,7 @@ window.onload = () => {
                     slide: {
                         preView: [[30, 20, 30]],
                         position: 'right',
-                        step: 1,
+                        // step: 1,
                     },
                 },
                 768: {

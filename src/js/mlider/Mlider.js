@@ -35,7 +35,6 @@ export class Mlider {
         this.#checkElements()
         this.#checkOptions(this.opt)
         this.#optionsRegulation()
-        console.log("this.opt:", this.opt.breakpoint)
 
         if (this.validKeyElements) {
             this.#generate()
@@ -347,7 +346,7 @@ export class Mlider {
         this.$slideLine.style.transform = `translateX(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position]}px)`
 
         // others
-        this.setCurrentClasses
+        // this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
     }
 
@@ -422,6 +421,7 @@ export class Mlider {
                 mainRect.pos = ind
                 mainRect.step = this.stepLayout[ind]
                 mainRect.left = Math.max(...leftValues)
+                console.log("mainRect.left:", mainRect.left)
                 mainRect.right = Math.min(...rightValues)
                 mainRect.center = (mainRect.left + mainRect.right) / 2
                 mainRect.width = widthValue
@@ -480,7 +480,7 @@ export class Mlider {
         this.#mainRectUpdate()
     }
 
-    #mainRectUpdate() {
+    #mainRectUpdate(reset) {
         for (let i = Math.abs(this.action); i > 0; i--) {
             if (this.action > 0) {
                 const curRect = this.opt.rectByPos(this.mainSlideLngth - i)
@@ -526,7 +526,9 @@ export class Mlider {
         }
 
         if (this.opt.breakpoint) {
+            this.breakpointArr = []
             window.addEventListener('resize', this.breakpointEvent.bind(this))
+            this.breakpointEvent()
         }
     }
 
@@ -587,7 +589,12 @@ export class Mlider {
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
 
-        if (docSize <= 1024) {
+        if (docSize <= 1024 && !this.breakpointArr.includes(1024)) {
+            this.breakpointArr.push(1024)
+            this.#generateLayouts(this.opt.breakpoint[1024])
+            this.#generateFlexSizes(this.opt.breakpoint[1024])
+            this.#mainRectUpdate(true)
+            this.viewSlide()
 
         }
     }
