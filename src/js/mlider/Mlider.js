@@ -35,6 +35,7 @@ export class Mlider {
         this.#checkElements()
         this.#checkOptions(this.opt)
         this.#optionsRegulation()
+        console.log("this.opt:", this.opt)
 
         if (this.validKeyElements) {
             this.#generate()
@@ -96,25 +97,33 @@ export class Mlider {
         return selector
     }
 
-    #checkOptions(options, innerDefOpt, innerName) {
+    #checkOptions(opt, innerDefOpt, innerName) {
         const defOpt = innerDefOpt ? innerDefOpt : this.defualtOptions
-        if (typeof options === 'object' && !Array.isArray(options)) {
-            for (let key in options) {
+        if (typeof opt === 'object' && !Array.isArray(opt)) {
+            for (let key in opt) {
                 const name = innerName ? innerName + key[0].toUpperCase() + key.slice(1) : key
                 if (typeof defOpt[key] === 'number') {
-                    options[key] = this.#checkNumberOpt(options[key], defOpt[key], name)
+                    opt[key] = this.#checkNumberOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'string') {
-                    options[key] = this.#checkStringOpt(options[key], defOpt[key], name)
+                    opt[key] = this.#checkStringOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'boolean') {
-                    options[key] = this.#checkBooleanOpt(options[key], defOpt[key], name)
+                    opt[key] = this.#checkBooleanOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'object') {
-                    this.#checkOptions(options[key], defOpt[key], name)
+                    this.#checkOptions(opt[key], defOpt[key], name)
+                    if (key === 'slide') {
+                        opt[key] = Object.assign(Object.assign({}, this.defualtOptions.slide), opt[key])
+                        this.opt[`slide${parseInt(name) || ''}`] = this.#slideOptRegulation(opt[key])
+                    } else {
+                        this.opt[key + (parseInt(name) || '')] = Object.assign(Object.assign({}, this.defualtOptions[key]), opt[key])
+                    }
                 } else if (typeof defOpt[key] === 'undefined') {
                     if (name.includes('breakpoint')) {
-                        if (this.#checkNumberOpt(key, 0, name) === 0) options[key] = {}
-                        else this.#checkOptions(options[key], this.defualtOptions, name)
+                        if (this.#checkNumberOpt(key, 0, name) === 0) opt[key] = {}
+                        else {
+                            this.#checkOptions(opt[key], this.defualtOptions, key)
+                        }
                     } else {
-                        this.#errorLog(name, 'udefined value')
+                        this.#errorLog(name, 'udefined option')
                     }
                 }
             }
@@ -127,18 +136,7 @@ export class Mlider {
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
         this.opt.swipeEventOpt = Object.assign(Object.assign({}, this.defualtOptions.swipeEventOpt), this.opt.swipeEventOpt)
         this.opt.autoViewSlideOpt = Object.assign(Object.assign({}, this.defualtOptions.autoViewSlideOpt), this.opt.autoViewSlideOpt)
-        this.#slideOptSearch(this.opt)
-    }
-
-    #slideOptSearch(opt) {
-        for (let key in opt) {
-            if (key === 'slide') {
-                opt[key] = Object.assign(Object.assign({}, this.defualtOptions.slide), opt[key])
-                opt[key] = this.#slideOptRegulation(opt[key])
-            } else if (typeof opt[key] === 'object' && !Array.isArray(opt[key])) {
-                this.#slideOptSearch(opt[key])
-            }
-        }
+        delete this.opt.breakpoint
     }
 
     #slideOptRegulation(slideOpt) {
@@ -421,7 +419,6 @@ export class Mlider {
                 mainRect.pos = ind
                 mainRect.step = this.stepLayout[ind]
                 mainRect.left = Math.max(...leftValues)
-                console.log("mainRect.left:", mainRect.left)
                 mainRect.right = Math.min(...rightValues)
                 mainRect.center = (mainRect.left + mainRect.right) / 2
                 mainRect.width = widthValue

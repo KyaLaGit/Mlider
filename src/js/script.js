@@ -39,9 +39,13 @@ window.onload = () => {
             breakpoint: {
                 1024: {
                     slide: {
-                        preView: [[30, 20, 30]],
+                        // preView: [[30, 20, 30]],
                         position: 'right',
                         // step: 1,
+                    },
+                    columnGap: 0,
+                    swipeEventOpt: {
+                        sensitivity: 3,
                     },
                 },
                 768: {
