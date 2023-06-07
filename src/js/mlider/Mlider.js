@@ -480,7 +480,7 @@ export class Mlider {
         this.#mainRectUpdate()
     }
 
-    #mainRectUpdate(reset) {
+    #mainRectUpdate() {
         for (let i = Math.abs(this.action); i > 0; i--) {
             if (this.action > 0) {
                 const curRect = this.opt.rectByPos(this.mainSlideLngth - i)
@@ -593,9 +593,8 @@ export class Mlider {
             this.breakpointArr.push(1024)
             this.#generateLayouts(this.opt.breakpoint[1024])
             this.#generateFlexSizes(this.opt.breakpoint[1024])
-            this.#mainRectUpdate(true)
-            this.viewSlide()
 
+            this.viewSlide()
         }
     }
 
