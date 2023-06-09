@@ -33,7 +33,7 @@ export class Mlider {
         }
 
         this.#checkElements()
-        this.#checkOptions(this.opt)
+        this.#checkOptions()
         this.#optionsRegulation()
         console.log("this.opt:", this.opt)
 
@@ -97,11 +97,11 @@ export class Mlider {
         return selector
     }
 
-    #checkOptions(opt, innerDefOpt, innerName) {
-        const defOpt = innerDefOpt ? innerDefOpt : this.defualtOptions
+    #checkOptions({ opt = this.opt, defOpt = this.defualtOptions, innerName } = {}) {
         if (typeof opt === 'object' && !Array.isArray(opt)) {
             for (let key in opt) {
                 const name = innerName ? innerName + key[0].toUpperCase() + key.slice(1) : key
+
                 if (typeof defOpt[key] === 'number') {
                     opt[key] = this.#checkNumberOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'string') {
@@ -109,23 +109,20 @@ export class Mlider {
                 } else if (typeof defOpt[key] === 'boolean') {
                     opt[key] = this.#checkBooleanOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'object') {
-                    this.#checkOptions(opt[key], defOpt[key], name)
-                    if (key === 'slide') {
-                        opt[key] = Object.assign(Object.assign({}, this.defualtOptions.slide), opt[key])
-                        this.opt[`slide${parseInt(name) || ''}`] = this.#slideOptRegulation(opt[key])
-                    } else {
-                        this.opt[key + (parseInt(name) || '')] = Object.assign(Object.assign({}, this.defualtOptions[key]), opt[key])
-                    }
+                    this.#checkOptions({ opt: opt[key], defOpt: defOpt[key], innerName: name })
+
+                    opt[key] = Object.assign(Object.assign({}, this.defualtOptions[key]), opt[key])
+                    if (key === 'slide') { opt[key] = this.#slideOptRegulation(opt[key]) }
+
                 } else if (typeof defOpt[key] === 'undefined') {
                     if (name.includes('breakpoint')) {
                         if (this.#checkNumberOpt(key, 0, name) === 0) opt[key] = {}
-                        else {
-                            this.#checkOptions(opt[key], this.defualtOptions, key)
-                        }
+                        else { this.#checkOptions({ opt: opt[key], innerName: key }) }
                     } else {
                         this.#errorLog(name, 'udefined option')
                     }
                 }
+
             }
         } else {
             this.#errorLog(innerName, 'invalid value(!use defualt value!)')
@@ -136,7 +133,6 @@ export class Mlider {
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
         this.opt.swipeEventOpt = Object.assign(Object.assign({}, this.defualtOptions.swipeEventOpt), this.opt.swipeEventOpt)
         this.opt.autoViewSlideOpt = Object.assign(Object.assign({}, this.defualtOptions.autoViewSlideOpt), this.opt.autoViewSlideOpt)
-        delete this.opt.breakpoint
     }
 
     #slideOptRegulation(slideOpt) {
