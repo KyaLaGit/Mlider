@@ -17,20 +17,20 @@ window.onload = () => {
         {
             infinity: true,
             columnGap: 20,
-            transitionTime: 500,
+            // transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
-            swipeEvent: false,
-            swipeEventOpt: {
-                sensitivity: 2,
-            },
-            slideGroup: 1,
-            autoViewSlide: false,
-            autoViewSlideOpt: {
-                time: 0,
-                direction: 'right',
-            },
+            // swipeEvent: false,
+            // swipeEventOpt: {
+            //     sensitivity: 2,
+            // },
+            // slideGroup: 1,
+            // autoViewSlide: false,
+            // autoViewSlideOpt: {
+            // time: 0,
+            // direction: 'right',
+            // },
             slide: {
                 preView: [1.3, [35, 45]],
                 position: 'center',
