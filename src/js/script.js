@@ -43,10 +43,6 @@ window.onload = () => {
                         position: 'right',
                         // step: 1,
                     },
-                    columnGap: 0,
-                    swipeEventOpt: {
-                        sensitivity: 3,
-                    },
                 },
                 768: {
                     slide: {

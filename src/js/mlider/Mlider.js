@@ -100,13 +100,13 @@ export class Mlider {
         if (!this.opt.slide) this.opt.slide = Object.assign({}, this.defualtOptions.slide)
         this.#optionsRegulation()
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
+        this.#nullBreakpoint()
     }
 
     #optionsRegulation({ opt = this.opt, defOpt = this.defualtOptions, innerName } = {}) {
         if (typeof opt === 'object' && !Array.isArray(opt)) {
             for (let key in opt) {
                 const name = innerName ? innerName + key[0].toUpperCase() + key.slice(1) : key
-
                 if (typeof defOpt[key] === 'number') {
                     opt[key] = this.#checkNumberOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'string') {
@@ -119,13 +119,12 @@ export class Mlider {
                     if (key === 'slide') { opt[key] = this.#slideOptRegulation(opt[key]) }
                 } else if (typeof defOpt[key] === 'undefined') {
                     if (name.includes('breakpoint')) {
-                        if (this.#checkNumberOpt(key, 0, name) === 0) opt[key] = {}
+                        if (this.#checkNumberOpt(key, 0, name) === 0) delete opt[key]
                         else { this.#optionsRegulation({ opt: opt[key], innerName: key }) }
                     } else {
                         this.#errorLog(name, 'udefined option')
                     }
                 }
-
             }
         } else {
             this.#errorLog(innerName, 'invalid value(!use defualt value!)')
@@ -155,6 +154,19 @@ export class Mlider {
         if (slideOpt.step.every(opt => opt === slideOpt.step[0])) slideOpt.step = [slideOpt.step[0]]
 
         return slideOpt
+    }
+
+    #nullBreakpoint() {
+        this.opt.breakpoint[0] = {}
+        const optArr = []
+        if (this.opt.breakpoint) {
+            for (let key in this.opt.breakpoint) {
+                for (let innerKey in this.opt.breakpoint[key]) {
+                    if (!optArr.includes(innerKey)) this.opt.breakpoint[0][innerKey] = this.opt[innerKey]
+                    optArr.push(innerKey)
+                }
+            }
+        }
     }
 
 
