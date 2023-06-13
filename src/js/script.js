@@ -17,11 +17,11 @@ window.onload = () => {
         {
             infinity: true,
             columnGap: 20,
-            // transitionTime: 500,
+            transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
-            // swipeEvent: false,
+            swipeEvent: false,
             // swipeEventOpt: {
             //     sensitivity: 2,
             // },
@@ -39,10 +39,12 @@ window.onload = () => {
             breakpoint: {
                 1024: {
                     slide: {
-                        // preView: [[30, 20, 30]],
-                        position: 'right',
+                        preView: [[30, 20, 30]],
+                        position: 'center',
                         // step: 1,
                     },
+                    transitionTime: 600,
+                    columnGap: 30,
                 },
                 768: {
                     slide: {
@@ -50,6 +52,11 @@ window.onload = () => {
                         position: 'left',
                         // step: 1,
                     },
+                    infinity: false,
+                    columnGap: 40,
+                },
+                425: {
+                    columnGap: 0,
                 }
             },
         }

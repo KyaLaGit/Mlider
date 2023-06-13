@@ -5,6 +5,7 @@ export class Mlider {
         this.curInd = 0
         this.prevInd = 0
         this.action = 0
+        this.curBp = 0
 
         this.defualtOptions = {
             infinity: false,
@@ -34,9 +35,9 @@ export class Mlider {
 
         this.#checkElements()
         this.#checkOptions()
-        console.log("this.opt:", this.opt)
 
         if (this.validKeyElements) {
+            this.#rebuildOptOnBreakpoint(document.documentElement.clientWidth)
             this.#generate()
             this.#styles()
 
@@ -44,6 +45,7 @@ export class Mlider {
             this.#event()
             this.viewSlide()
         }
+        console.log(this.opt)
     }
 
     // ERROR
@@ -158,9 +160,11 @@ export class Mlider {
 
     #nullBreakpoint() {
         this.opt.breakpoint[0] = {}
+        this.bpArr = []
         const optArr = []
         if (this.opt.breakpoint) {
             for (let key in this.opt.breakpoint) {
+                this.bpArr.push(Number(key))
                 for (let innerKey in this.opt.breakpoint[key]) {
                     if (!optArr.includes(innerKey)) this.opt.breakpoint[0][innerKey] = this.opt[innerKey]
                     optArr.push(innerKey)
@@ -168,6 +172,13 @@ export class Mlider {
             }
         }
     }
+
+    #rebuildOptOnBreakpoint(docSize = 0) {
+        const bpArr = this.bpArr.filter(bp => docSize <= bp)
+        if (bpArr.length === 0) bpArr.push(0)
+        this.opt = Object.assign(this.opt, this.opt.breakpoint[Math.min(...bpArr)])
+    }
+
 
 
 
@@ -592,11 +603,6 @@ export class Mlider {
         const docSize = document.documentElement.clientWidth
 
         if (docSize <= 1024 && !this.breakpointArr.includes(1024)) {
-            this.breakpointArr.push(1024)
-            this.#generateLayouts(this.opt.breakpoint[1024])
-            this.#generateFlexSizes(this.opt.breakpoint[1024])
-
-            this.viewSlide()
         }
     }
 
