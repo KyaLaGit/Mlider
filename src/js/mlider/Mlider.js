@@ -5,7 +5,6 @@ export class Mlider {
         this.curInd = 0
         this.prevInd = 0
         this.action = 0
-        this.curBp = 0
 
         this.defualtOptions = {
             infinity: false,
@@ -175,7 +174,6 @@ export class Mlider {
 
     #rebuildOptOnBreakpoint(docSize = 0) {
         const bpArr = this.bpArr.filter(bp => docSize <= bp)
-        if (bpArr.length === 0) bpArr.push(0)
         this.opt = Object.assign(this.opt, this.opt.breakpoint[Math.min(...bpArr)])
     }
 
@@ -245,7 +243,7 @@ export class Mlider {
         this.slideLngth = this.$slides.length
 
         // generate layouts
-        this.#generateLayouts(this.opt)
+        this.#generateLayouts()
 
         // others
         this.$wrap.setAttribute('data-mlider-type', 'wrapper')
@@ -266,12 +264,12 @@ export class Mlider {
         }
     }
 
-    #generateLayouts(option) {
+    #generateLayouts() {
         this.stepLayout = []
         this.styleLayout = []
 
         for (let i = 0, ind = 0; i <= this.slideLngth;) {
-            const val = option.slide.step[ind % option.slide.step.length]
+            const val = this.opt.slide.step[ind % this.opt.slide.step.length]
             const residue = this.slideLngth - i
 
             if (residue > val) {
@@ -284,7 +282,7 @@ export class Mlider {
             }
         }
         for (let i = 0, ind = 0; i <= this.slideLngth;) {
-            const val = option.slide.preView[ind % option.slide.preView.length]
+            const val = this.opt.slide.preView[ind % this.opt.slide.preView.length]
             const residue = this.slideLngth - i
 
             if (residue > val.length) {
@@ -327,7 +325,7 @@ export class Mlider {
                 `
         })
 
-        this.#generateFlexSizes(this.opt)
+        this.#generateFlexSizes()
     }
 
     #generateFlexSizes() {
@@ -601,9 +599,7 @@ export class Mlider {
 
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
-
-        if (docSize <= 1024 && !this.breakpointArr.includes(1024)) {
-        }
+        this.#rebuildOptOnBreakpoint(docSize)
     }
 
     #intervalView() {
