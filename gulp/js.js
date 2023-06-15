@@ -10,7 +10,7 @@ export const js = () => {
         .pipe(webpack({
             mode: 'production',
             output: {
-                filename: 'script.min.js'
+                filename: 'script.js'
             }
         }))
         .pipe(glob.dest('dist/js/'))

@@ -5,6 +5,7 @@ export class Mlider {
         this.curInd = 0
         this.prevInd = 0
         this.action = 0
+        this.curBp = 0
 
         this.defualtOptions = {
             infinity: false,
@@ -36,7 +37,7 @@ export class Mlider {
         this.#checkOptions()
 
         if (this.validKeyElements) {
-            this.#rebuildOptOnBreakpoint(document.documentElement.clientWidth)
+            this.#resetOptOnBreakpoint(document.documentElement.clientWidth)
             this.#generate()
             this.#styles()
 
@@ -44,7 +45,6 @@ export class Mlider {
             this.#event()
             this.viewSlide()
         }
-        console.log(this.opt)
     }
 
     // ERROR
@@ -172,9 +172,25 @@ export class Mlider {
         }
     }
 
-    #rebuildOptOnBreakpoint(docSize = 0) {
+    #resetOptOnBreakpoint(docSize = 0, resetSlider) {
         const bpArr = this.bpArr.filter(bp => docSize <= bp)
-        this.opt = Object.assign(this.opt, this.opt.breakpoint[Math.min(...bpArr)])
+        const bp = Math.min(...bpArr) === Infinity ? 0 : Math.min(...bpArr)
+        if (this.curBp !== bp) {
+            this.opt = Object.assign(this.opt, this.opt.breakpoint[bp])
+            this.curBp = bp
+            console.log(this.opt.breakpoint[bp])
+            if (resetSlider) {
+                const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
+
+                if (newOptArr.includes('slide')) {
+                    this.#generateLayouts()
+                    this.#generateFlexSizes()
+                    this.#rectReset(true)
+                }
+
+                this.viewSlide()
+            }
+        }
     }
 
 
@@ -330,6 +346,7 @@ export class Mlider {
 
     #generateFlexSizes() {
         let ind = 0
+        this.$slides = this.$slider.querySelectorAll('.slide-mlider')
         for (let i = 0; i < this.styleLayout.length; i++) {
             for (let u = 0; u < this.styleLayout[i].length; u++) {
                 this.$slides[ind].style.flex = `0 0 calc(${this.styleLayout[i][u]}% - (${this.opt.columnGap}px 
@@ -432,11 +449,11 @@ export class Mlider {
                 mainRect.ind = ind
                 mainRect.pos = ind
                 mainRect.step = this.stepLayout[ind]
-                mainRect.left = Math.max(...leftValues)
-                mainRect.right = Math.min(...rightValues)
-                mainRect.center = (mainRect.left + mainRect.right) / 2
                 mainRect.width = widthValue
                 mainRect.slides = slideValues
+                if (this.opt.slide.position === 'left') mainRect.left = Math.max(...leftValues)
+                else if (this.opt.slide.position === 'right') mainRect.right = Math.min(...rightValues)
+                if (this.opt.slide.position === 'center') mainRect.center = (Math.max(...leftValues) + Math.min(...rightValues)) / 2
 
                 this.opt.mainSlideRect.push(mainRect)
             }
@@ -459,8 +476,9 @@ export class Mlider {
         } else {
             // slides opt update
             for (let i = 0; i < this.mainSlideLngth; i++) {
-                const mainRect = this.opt.mainSlideRect[i]
-                mainRect.slides = mainRect.slides.map(slide => this.$slideLine.querySelector(`[data-mlider-index="${slide.getAttribute('data-mlider-index')}"]`))
+                this.opt.mainSlideRect[i].slides = this.opt.mainSlideRect[i].slides.map(slide =>
+                    this.$slideLine.querySelector(`[data-mlider-index="${slide.getAttribute('data-mlider-index')}"]`)
+                )
             }
 
             // for sub slide line   
@@ -599,7 +617,7 @@ export class Mlider {
 
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
-        this.#rebuildOptOnBreakpoint(docSize)
+        this.#resetOptOnBreakpoint(docSize, true)
     }
 
     #intervalView() {
