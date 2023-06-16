@@ -40,8 +40,8 @@ export class Mlider {
             this.#resetOptOnBreakpoint(document.documentElement.clientWidth)
             this.#generate()
             this.#styles()
+            this.#reset(true)
 
-            this.#rectReset(true)
             this.#event()
             this.viewSlide()
         }
@@ -172,22 +172,17 @@ export class Mlider {
         }
     }
 
-    #resetOptOnBreakpoint(docSize = 0, resetSlider) {
+    #resetOptOnBreakpoint(docSize = 0, reset) {
         const bpArr = this.bpArr.filter(bp => docSize <= bp)
         const bp = Math.min(...bpArr) === Infinity ? 0 : Math.min(...bpArr)
+
         if (this.curBp !== bp) {
             this.opt = Object.assign(this.opt, this.opt.breakpoint[bp])
             this.curBp = bp
-            console.log(this.opt.breakpoint[bp])
-            if (resetSlider) {
+
+            if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
-
-                if (newOptArr.includes('slide')) {
-                    this.#generateLayouts()
-                    this.#generateFlexSizes()
-                    this.#rectReset(true)
-                }
-
+                if (newOptArr.includes('slide')) this.#reset(true)
                 this.viewSlide()
             }
         }
@@ -240,26 +235,18 @@ export class Mlider {
     // GENERATE
     #generate() {
         // generate slides group
-        let slidesJoin = ''
+        this.slidesJoin = ''
         this.$slides.forEach((slide, ind) => {
             slide.setAttribute('data-mlider-index', ind)
-            slidesJoin += slide.outerHTML
+            this.slidesJoin += slide.outerHTML
         })
 
         // generate inner wrap
-        this.$wrap.innerHTML = ''
-        this.$wrap.insertAdjacentHTML('afterbegin', `
-                <div class="sub-slide-line">
-                    <div class="slide-line">${slidesJoin}</div>
-                </div>
-        `)
-        this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
+        this.$wrap.innerHTML = `<div class="sub-slide-line"><div class="slide-line"></div></div>`
         this.$slideLine = this.$slider.querySelector('.slide-line')
         this.$subSlideLine = this.$slider.querySelector('.sub-slide-line')
+        this.slideLineWidth = this.$slideLine.clientWidth
         this.slideLngth = this.$slides.length
-
-        // generate layouts
-        this.#generateLayouts()
 
         // others
         this.$wrap.setAttribute('data-mlider-type', 'wrapper')
@@ -278,6 +265,59 @@ export class Mlider {
             }
             this.opt.dots = this.$slider.querySelectorAll(this.selectors.dotSelector)
         }
+    }
+
+    #styles() {
+        this.$subSlideLine.style.cssText += `
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 100%;    
+        `
+
+        this.$slideLine.style.cssText += `
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        `
+
+        this.$slides.forEach(slide => {
+            slide.style.cssText += `
+                height: 100%;
+                `
+        })
+    }
+
+    #reset(first) {
+        this.curInd = 0
+        this.prevInd = 0
+
+        this.#insertSlidesInSlideLine(first)
+        this.#generateLayouts()
+        this.#generateFlexSizes()
+        this.#updateSlideLineStyle()
+        this.#rectReset(true)
+        this.#updateSlideLineStyle()
+    }
+
+
+
+
+
+    #insertSlidesInSlideLine(first) {
+        if (!first) {
+            const slideSortArr = Array.from(this.$slides).sort(function (a, b) {
+                if (Number(a.getAttribute('data-mlider-index')) > Number(b.getAttribute('data-mlider-index'))) return 1
+                else return -1
+            })
+            this.slidesJoin = slideSortArr.map(slide => slide.outerHTML)
+        }
+        this.$slideLine.innerHTML = this.slidesJoin
+        this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
     }
 
     #generateLayouts() {
@@ -313,37 +353,6 @@ export class Mlider {
         this.mainSlideLngth = this.stepLayout.length
     }
 
-    #styles() {
-        if (this.opt.infinity) {
-            this.$subSlideLine.style.cssText += `
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 100%;    
-            `
-        }
-
-        this.$slideLine.style.cssText += `
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            column-gap: ${this.opt.columnGap}px;
-            transition: transform ${this.opt.transitionTime / 1000}s ease;
-        `
-
-        this.$slides.forEach(slide => {
-            slide.style.cssText += `
-                height: 100%;
-                `
-        })
-
-        this.#generateFlexSizes()
-    }
-
     #generateFlexSizes() {
         let ind = 0
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
@@ -356,7 +365,12 @@ export class Mlider {
         }
     }
 
-
+    #updateSlideLineStyle() {
+        this.$slideLine.style.cssText += `
+            column-gap: ${this.opt.columnGap}px;
+            transition: transform ${this.opt.transitionTime / 1000}s ease;
+        `
+    }
 
 
 
@@ -371,8 +385,9 @@ export class Mlider {
         this.opt.infinity ? this.slideShift() : null
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(${this.opt.moveSlidePoint}px)`
-        this.$slideLine.style.transform = `translateX(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position]}px)`
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(${this.opt.moveSlidePoint / this.slideLineWidth * 100}%)`
+        this.$slideLine.style.transform = `translateX(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%)`
+        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses
@@ -421,11 +436,17 @@ export class Mlider {
         if (first) {
             this.opt.wrapRect = this.$wrap.getBoundingClientRect()
             this.opt.mainSlideRect = []
-            this.opt.secSlideRect = []
             this.opt.moveSlidePoint = 0
+            this.$slideLine.style.cssText += `transition: transform 0s ease;`
+            this.$subSlideLine.style.transform = `translateX(0px)`
+            this.$slideLine.style.transform = `translateX(0px)`
 
             // main slides rect
             let secInd = 0
+            const slideSortArr = Array.from(this.$slides).sort(function (a, b) {
+                if (Number(a.getAttribute('data-mlider-index')) > Number(b.getAttribute('data-mlider-index'))) return 1
+                else return -1
+            })
             for (let ind = 0; ind < this.stepLayout.length; ind++) {
                 const mainRect = {}
                 let leftValues = []
@@ -434,7 +455,7 @@ export class Mlider {
                 let widthValue = 0
 
                 for (let i = 0; i < this.stepLayout[ind]; i++) {
-                    const slide = this.$slides[secInd]
+                    const slide = slideSortArr[secInd]
                     const slideRect = slide.getBoundingClientRect()
                     const wrapRect = this.opt.wrapRect
 
@@ -506,6 +527,7 @@ export class Mlider {
                     : this.opt.moveSlidePoint -= moveSlideWdth
             }
         }
+
         this.#mainRectUpdate()
     }
 
@@ -515,16 +537,24 @@ export class Mlider {
                 const curRect = this.opt.rectByPos(this.mainSlideLngth - i)
                 const prevRect = this.opt.rectByPos(this.mainSlideLngth - i - 1)
 
-                curRect.left = prevRect.left - prevRect.width
-                curRect.right = prevRect.right - curRect.width
-                curRect.center = prevRect.center - (prevRect.width / 2) - (curRect.width / 2)
+                if (this.opt.slide.position === 'left') {
+                    curRect.left = prevRect.left - prevRect.width
+                } else if (this.opt.slide.position === 'right') {
+                    curRect.right = prevRect.right - curRect.width
+                } else if (this.opt.slide.position === 'center') {
+                    curRect.center = prevRect.center - (prevRect.width / 2) - (curRect.width / 2)
+                }
             } else if (this.action < 0) {
                 const curRect = this.opt.rectByPos(i - 1)
                 const nextRect = this.opt.rectByPos(i)
 
-                curRect.left = nextRect.left + curRect.width
-                curRect.right = nextRect.right + nextRect.width
-                curRect.center = nextRect.center + (nextRect.width / 2) + (curRect.width / 2)
+                if (this.opt.slide.position === 'left') {
+                    curRect.left = nextRect.left + curRect.width
+                } else if (this.opt.slide.position === 'right') {
+                    curRect.right = nextRect.right + nextRect.width
+                } else if (this.opt.slide.position === 'center') {
+                    curRect.center = nextRect.center + (nextRect.width / 2) + (curRect.width / 2)
+                }
             }
         }
     }

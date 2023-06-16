@@ -32,29 +32,29 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [1.3, [35, 45]],
-                position: 'left',
+                preView: [2, [35, 45]],
+                position: 'center',
                 // step: 1,
             },
             breakpoint: {
                 1024: {
                     slide: {
-                        preView: [[30, 20, 30]],
+                        preView: [3, 2],
                         position: 'center',
                         // step: 1,
                     },
                     transitionTime: 600,
-                    columnGap: 30,
+                    columnGap: 50,
                 },
-                768: {
-                    slide: {
-                        preView: [2, 3],
-                        position: 'left',
-                        // step: 1,
-                    },
-                    infinity: false,
-                    columnGap: 40,
-                },
+                // 768: {
+                //     slide: {
+                //         preView: [2, 3],
+                //         position: 'left',
+                //         // step: 1,
+                //     },
+                //     infinity: false,
+                //     columnGap: 40,
+                // },
                 425: {
                     columnGap: 0,
                 }
