@@ -2,9 +2,6 @@ export class Mlider {
     constructor(selectors, opt) {
         this.selectors = selectors
         this.opt = opt !== undefined ? opt : {}
-        this.curInd = 0
-        this.prevInd = 0
-        this.action = 0
         this.curBp = 0
 
         this.defualtOptions = {
@@ -37,7 +34,7 @@ export class Mlider {
         this.#checkOptions()
 
         if (this.validKeyElements) {
-            this.#resetOptOnBreakpoint(document.documentElement.clientWidth)
+            this.#resetOptOnBp(document.documentElement.clientWidth)
             this.#generate()
             this.#styles()
             this.#reset(true)
@@ -172,7 +169,7 @@ export class Mlider {
         }
     }
 
-    #resetOptOnBreakpoint(docSize = 0, reset) {
+    #resetOptOnBp(docSize = 0, reset) {
         const bpArr = this.bpArr.filter(bp => docSize <= bp)
         const bp = Math.min(...bpArr) === Infinity ? 0 : Math.min(...bpArr)
 
@@ -292,30 +289,25 @@ export class Mlider {
         })
     }
 
-    #reset(first) {
+    #reset() {
         this.curInd = 0
         this.prevInd = 0
+        this.action = 0
 
-        this.#insertSlidesInSlideLine(first)
+        this.offSlideLineTransition
+        this.#insertSlidesInSlideLine()
         this.#generateLayouts()
         this.#generateFlexSizes()
         this.#updateSlideLineStyle()
         this.#rectReset(true)
-        this.#updateSlideLineStyle()
+        this.onSlideLineTransition
     }
 
 
 
 
 
-    #insertSlidesInSlideLine(first) {
-        if (!first) {
-            const slideSortArr = Array.from(this.$slides).sort(function (a, b) {
-                if (Number(a.getAttribute('data-mlider-index')) > Number(b.getAttribute('data-mlider-index'))) return 1
-                else return -1
-            })
-            this.slidesJoin = slideSortArr.map(slide => slide.outerHTML)
-        }
+    #insertSlidesInSlideLine() {
         this.$slideLine.innerHTML = this.slidesJoin
         this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
     }
@@ -368,9 +360,17 @@ export class Mlider {
     #updateSlideLineStyle() {
         this.$slideLine.style.cssText += `
             column-gap: ${this.opt.columnGap}px;
-            transition: transform ${this.opt.transitionTime / 1000}s ease;
         `
     }
+
+    get offSlideLineTransition() {
+        this.$slideLine.style.transition = ''
+    }
+
+    get onSlideLineTransition() {
+        this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
+    }
+
 
 
 
@@ -381,12 +381,14 @@ export class Mlider {
         // index and actions
         this.prevInd = this.curInd
         this.curInd = this.#getCheckInd(ind)
-        this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
+        this.opt.infinity
+            ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
+            : this.action = this.opt.mainSlideRect[this.curInd].pos - this.opt.mainSlideRect[this.prevInd].pos
         this.opt.infinity ? this.slideShift() : null
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(${this.opt.moveSlidePoint / this.slideLineWidth * 100}%)`
-        this.$slideLine.style.transform = `translateX(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%)`
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.moveSlidePoint / this.slideLineWidth * 100}% - ${this.opt.columnGap * this.action}px))`
+        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}% + ${this.opt.columnGap * this.action}px))`
 
         // others
         // this.setCurrentClasses
@@ -436,9 +438,9 @@ export class Mlider {
             this.opt.wrapRect = this.$wrap.getBoundingClientRect()
             this.opt.mainSlideRect = []
             this.opt.moveSlidePoint = 0
-            this.$slideLine.style.cssText += `transition: transform 0s ease;`
-            this.$subSlideLine.style.transform = `translateX(0px)`
-            this.$slideLine.style.transform = `translateX(0px)`
+            this.$slideLine.style.transform = ''
+            this.$subSlideLine.style.transform = ''
+
 
             // main slides rect
             let secInd = 0
@@ -461,7 +463,7 @@ export class Mlider {
                     leftValues.push(-(slideRect.left - wrapRect.left))
                     rightValues.push(wrapRect.right - slideRect.right)
                     slideValues.push(slide)
-                    widthValue += slideRect.width + this.opt.columnGap
+                    widthValue += slideRect.width
 
                     secInd++
                 }
@@ -646,7 +648,7 @@ export class Mlider {
 
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
-        this.#resetOptOnBreakpoint(docSize, true)
+        this.#resetOptOnBp(docSize, true)
     }
 
     #intervalView() {

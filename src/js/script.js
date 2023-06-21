@@ -15,8 +15,8 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: true,
-            columnGap: 50,
+            infinity: false,
+            columnGap: 100,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -37,22 +37,21 @@ window.onload = () => {
                 // step: 1,
             },
             breakpoint: {
-                1024: {
-                    slide: {
-                        preView: [3, 2],
-                        position: 'center',
-                        // step: 1,
-                    },
-                    transitionTime: 600,
-                    columnGap: 50,
-                },
+                // 1024: {
+                //     slide: {
+                //         preView: [3, 2],
+                //         position: 'center',
+                //         // step: 1,
+                //     },
+                //     transitionTime: 600,
+                //     columnGap: 50,
+                // },
                 768: {
                     slide: {
                         preView: [2, 3],
                         position: 'left',
                         // step: 1,
                     },
-                    infinity: false,
                     columnGap: 40,
                 },
                 425: {
