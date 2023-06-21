@@ -16,7 +16,7 @@ window.onload = () => {
         // Options
         {
             infinity: false,
-            columnGap: 100,
+            columnGap: 0,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -52,7 +52,7 @@ window.onload = () => {
                         position: 'left',
                         // step: 1,
                     },
-                    columnGap: 40,
+                    // columnGap: 40,
                 },
                 425: {
                     columnGap: 0,

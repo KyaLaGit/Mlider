@@ -179,7 +179,7 @@ export class Mlider {
 
             if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
-                if (newOptArr.includes('slide')) this.#reset(true)
+                this.#reset(true)
                 this.viewSlide()
             }
         }
@@ -294,13 +294,13 @@ export class Mlider {
         this.prevInd = 0
         this.action = 0
 
-        this.offSlideLineTransition
+        this.offTransition
         this.#insertSlidesInSlideLine()
+        this.#updateSlideLineStyle()
         this.#generateLayouts()
         this.#generateFlexSizes()
-        this.#updateSlideLineStyle()
         this.#rectReset(true)
-        this.onSlideLineTransition
+        this.onTransition
     }
 
 
@@ -363,11 +363,11 @@ export class Mlider {
         `
     }
 
-    get offSlideLineTransition() {
+    get offTransition() {
         this.$slideLine.style.transition = ''
     }
 
-    get onSlideLineTransition() {
+    get onTransition() {
         this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
     }
 
@@ -387,9 +387,10 @@ export class Mlider {
         this.opt.infinity ? this.slideShift() : null
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.moveSlidePoint / this.slideLineWidth * 100}% - ${this.opt.columnGap * this.action}px))`
-        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}% + ${this.opt.columnGap * this.action}px))`
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.moveSlidePoint / this.slideLineWidth * 100}%))`
+        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%))`
 
+        console.log(this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100)
         // others
         // this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
@@ -440,7 +441,6 @@ export class Mlider {
             this.opt.moveSlidePoint = 0
             this.$slideLine.style.transform = ''
             this.$subSlideLine.style.transform = ''
-
 
             // main slides rect
             let secInd = 0
