@@ -359,7 +359,7 @@ export class Mlider {
         for (let i = 0; i < this.styleLayout.length; i++) {
             for (let u = 0; u < this.styleLayout[i].length; u++) {
                 this.$slides[ind].style.flex = `0 0 calc(${this.styleLayout[i][u]}% - (${this.opt.columnGap}px 
-                            - (${this.opt.columnGap}px / ${this.styleLayout[i].length})))`
+                - (${this.opt.columnGap}px / ${this.styleLayout[i].length})))`
                 ind++
             }
         }
@@ -387,7 +387,6 @@ export class Mlider {
         // main actions
         if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(${this.opt.moveSlidePoint / this.slideLineWidth * 100}%)`
         this.$slideLine.style.transform = `translateX(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%)`
-        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses
@@ -712,4 +711,5 @@ export class Mlider {
 // !!!CANNOT apply transition on slides
 // console.time() -> 1-3 ms
 
+// direction++(по клеточкам)
 

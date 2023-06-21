@@ -16,7 +16,7 @@ window.onload = () => {
         // Options
         {
             infinity: true,
-            columnGap: 20,
+            columnGap: 50,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -32,7 +32,7 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2, [35, 45]],
+                preView: [2],
                 position: 'center',
                 // step: 1,
             },
@@ -46,15 +46,15 @@ window.onload = () => {
                     transitionTime: 600,
                     columnGap: 50,
                 },
-                // 768: {
-                //     slide: {
-                //         preView: [2, 3],
-                //         position: 'left',
-                //         // step: 1,
-                //     },
-                //     infinity: false,
-                //     columnGap: 40,
-                // },
+                768: {
+                    slide: {
+                        preView: [2, 3],
+                        position: 'left',
+                        // step: 1,
+                    },
+                    infinity: false,
+                    columnGap: 40,
+                },
                 425: {
                     columnGap: 0,
                 }
