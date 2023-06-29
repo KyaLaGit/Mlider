@@ -23,7 +23,7 @@
     "gulp-ttf2woff": "^1.1.1",
     "gulp-ttf2woff2": "^4.0.1",
     "sass": "^1.63.6",
-    "webpack": "^5.88.0",
+    "webpack": "^5.88.1",
     "webpack-stream": "^7.0.0"
   },
   "dependencies": {}

@@ -497,8 +497,8 @@ export class Mlider {
                 }
 
                 this.action > 0
-                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth + this.opt.columnGap * Math.abs(this.action), this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * Math.abs(this.action))
-                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth + this.opt.columnGap * Math.abs(this.action), this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * Math.abs(this.action))
+                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth, this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * Math.abs(this.action))
+                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth, this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * Math.abs(this.action))
             }
         }
 
@@ -511,7 +511,7 @@ export class Mlider {
                 const curRect = this.opt.rectByPos(this.mainSlideLngth - i)
                 const prevRect = this.opt.rectByPos(this.mainSlideLngth - i - 1)
 
-                curRect.columnGap = prevRect.columnGap + (curRect.step * this.opt.columnGap)
+                curRect.columnGap = prevRect.columnGap + this.opt.columnGap
 
                 if (this.opt.slide.position === 'left') {
                     curRect.left = prevRect.left - prevRect.width
@@ -524,7 +524,7 @@ export class Mlider {
                 const curRect = this.opt.rectByPos(i - 1)
                 const nextRect = this.opt.rectByPos(i)
 
-                curRect.columnGap = nextRect.columnGap - (curRect.step * this.opt.columnGap)
+                curRect.columnGap = nextRect.columnGap - this.opt.columnGap
 
                 if (this.opt.slide.position === 'left') {
                     curRect.left = nextRect.left + curRect.width
