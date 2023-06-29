@@ -13,11 +13,29 @@
 
         // overflow: hidden;
     }
-    &__slide-line {
+
+    .sub-slide-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    .slide-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+
+        // column-gap: 100px;
+        // transform: translateX(calc(-200% - 200px));
     }
 
     // .mlider__slide
-    &__slide {
+    .slide {
     }
     // .mlider__buttons
     &__buttons {
