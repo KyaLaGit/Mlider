@@ -366,7 +366,6 @@ export class Mlider {
         + ${this.opt.subSlideLine.columnGapPoint}px))`
         this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
         - ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
-        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses
@@ -438,14 +437,14 @@ export class Mlider {
                     const slide = slideSortArr[secInd]
 
                     curSlides.push(slide)
-                    curWidth += slide.clientWidth + this.opt.columnGap
-                    totalWidth += slide.clientWidth + this.opt.columnGap
+                    curWidth += slide.clientWidth
+                    totalWidth += slide.clientWidth
 
                     secInd++
                 }
 
-                curWidth -= this.opt.columnGap
-                totalWidth -= this.opt.columnGap
+                curWidth += this.opt.columnGap * (this.stepLayout[ind] - 1)
+                totalWidth += this.opt.columnGap * (this.stepLayout[ind] - 1)
 
                 // mainRect.ind = ind
                 mainRect.pos = ind
@@ -453,7 +452,7 @@ export class Mlider {
                 mainRect.step = this.stepLayout[ind]
                 if (this.opt.slide.position === 'left') mainRect.left = curWidth - totalWidth
                 else if (this.opt.slide.position === 'right') mainRect.right = wrapWidth - totalWidth
-                else if (this.opt.slide.position === 'center') null
+                else if (this.opt.slide.position === 'center') mainRect.center = (wrapWidth - totalWidth + curWidth - totalWidth) / 2
                 mainRect.width = curWidth
                 mainRect.slides = curSlides
 
@@ -485,7 +484,7 @@ export class Mlider {
 
             // for sub slide line   
             if (this.opt.infinity && this.action && this.action !== 0) {
-                let moveSlideWdth = 0, moveColumnGapWdth = Math.abs(this.action)
+                let moveSlideWdth = 0
                 if (this.action > 0) {
                     for (let i = 1; i < Math.abs(this.action) + 1; i++) {
                         moveSlideWdth += this.opt.rectByPos(this.mainSlideLngth - i).width
