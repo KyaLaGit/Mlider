@@ -36,10 +36,8 @@ export class Mlider {
         if (this.validKeyElements) {
             this.#resetOptOnBp(document.documentElement.clientWidth)
             this.#generate()
-            this.#reset()
-
             this.#event()
-            this.viewSlide()
+            this.#reset()
         }
     }
 
@@ -97,7 +95,7 @@ export class Mlider {
         if (!this.opt.slide) this.opt.slide = Object.assign({}, this.defualtOptions.slide)
         this.#optionsRegulation()
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
-        this.#nullBreakpoint()
+        this.#createNullBreakpoint()
     }
 
     #optionsRegulation({ opt = this.opt, defOpt = this.defualtOptions, innerName } = {}) {
@@ -153,7 +151,7 @@ export class Mlider {
         return slideOpt
     }
 
-    #nullBreakpoint() {
+    #createNullBreakpoint() {
         this.opt.breakpoint[0] = {}
         this.bpArr = []
         const optArr = []
@@ -179,10 +177,11 @@ export class Mlider {
             if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
                 this.#reset()
-                this.viewSlide()
             }
         }
     }
+
+
 
 
 
@@ -221,6 +220,8 @@ export class Mlider {
         this.#errorLog(name, 'invalid value(!use defualt value!)')
         return defOpt
     }
+
+
 
 
 
@@ -270,13 +271,13 @@ export class Mlider {
         this.offTransition
         if (this.opt.mainSlideRect) this.viewSlide(0, false)
         this.action = 0
-        this.#updateSlideLineStyle()
+        this.updateSlideLineOpt
         this.#generateLayouts()
         this.#generateFlexSizes()
         this.#rectReset(true)
         this.onTransition
+        this.viewSlide()
     }
-
 
 
 
@@ -326,10 +327,9 @@ export class Mlider {
         }
     }
 
-    #updateSlideLineStyle() {
-        this.$slideLine.style.cssText += `
-            column-gap: ${this.opt.columnGap}px;
-        `
+    get updateSlideLineOpt() {
+        this.$slideLine.style.columnGap = `${this.opt.columnGap}px`
+        this.slideLineWidth = this.$slideLine.clientWidth
     }
 
     get offTransition() {
@@ -339,6 +339,8 @@ export class Mlider {
     get onTransition() {
         this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
     }
+
+
 
 
 
@@ -356,11 +358,10 @@ export class Mlider {
         this.slideShift()
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.$slideLine.clientWidth * 100}% 
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% 
         + ${this.opt.subSlideLine.columnGapPoint}px))`
-        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.$slideLine.clientWidth * 100}%
+        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
         - ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
-        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses
@@ -646,8 +647,8 @@ export class Mlider {
 
     // GETTERS AND SETTERS
     get setCurrentClasses() {
-        this.opt.mainSlideRect[this.prevInd].slides.forEach(slide => { slide.classList.remove(this.opt.currentClass) })
-        this.opt.mainSlideRect[this.curInd].slides.forEach(slide => { slide.classList.add(this.opt.currentClass) })
+        // this.opt.mainSlideRect[this.prevInd].slides.forEach(slide => { slide.classList.remove(this.opt.currentClass) })
+        // this.opt.mainSlideRect[this.curInd].slides.forEach(slide => { slide.classList.add(this.opt.currentClass) })
 
         if (this.$dot) {
             this.opt.dots[this.#toInit(this.prevInd)].classList.remove(this.opt.currentClass)
