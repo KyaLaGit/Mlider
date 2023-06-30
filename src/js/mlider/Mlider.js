@@ -36,7 +36,7 @@ export class Mlider {
         if (this.validKeyElements) {
             this.#resetOptOnBp(document.documentElement.clientWidth)
             this.#generate()
-            this.#reset(true)
+            this.#reset()
 
             this.#event()
             this.viewSlide()
@@ -178,7 +178,7 @@ export class Mlider {
 
             if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
-                this.#reset(true)
+                this.#reset()
                 this.viewSlide()
             }
         }
@@ -231,11 +231,11 @@ export class Mlider {
     // GENERATE
     #generate() {
         // generate slides group
-        this.slidesJoin = ''
+        let slidesJoin = ''
         this.$slides.forEach((slide, ind) => {
             slide.setAttribute('data-mlider-index', ind)
             slide.classList.add('slide')
-            this.slidesJoin += slide.outerHTML
+            slidesJoin += slide.outerHTML
         })
 
         // generate inner wrap
@@ -244,6 +244,8 @@ export class Mlider {
         this.$subSlideLine = this.$slider.querySelector('.sub-slide-line')
         this.slideLineWidth = this.$slideLine.clientWidth
         this.slideLngth = this.$slides.length
+        this.$slideLine.innerHTML = slidesJoin
+        this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
 
         // others
         this.$wrap.setAttribute('data-mlider-type', 'wrapper')
@@ -265,12 +267,9 @@ export class Mlider {
     }
 
     #reset() {
-        this.curInd = 0
-        this.prevInd = 0
-        this.action = 0
-
         this.offTransition
-        this.#insertSlidesInSlideLine()
+        if (this.opt.mainSlideRect) this.viewSlide(0, false)
+        this.action = 0
         this.#updateSlideLineStyle()
         this.#generateLayouts()
         this.#generateFlexSizes()
@@ -281,11 +280,6 @@ export class Mlider {
 
 
 
-
-    #insertSlidesInSlideLine() {
-        this.$slideLine.innerHTML = this.slidesJoin
-        this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
-    }
 
     #generateLayouts() {
         this.stepLayout = []
@@ -352,20 +346,21 @@ export class Mlider {
 
 
     // VIEW SLIDES
-    viewSlide(ind = 0) {
+    viewSlide(ind = 0, infinity = this.opt.infinity) {
         // index and actions
         this.prevInd = this.curInd
         this.curInd = this.#getCheckInd(ind)
-        this.opt.infinity
+        infinity
             ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
-            : this.action = this.opt.mainSlideRect[this.curInd].pos - this.opt.mainSlideRect[this.prevInd].pos
-        this.opt.infinity ? this.slideShift() : null
+            : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
+        this.slideShift()
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% 
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.$slideLine.clientWidth * 100}% 
         + ${this.opt.subSlideLine.columnGapPoint}px))`
-        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
+        this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.$slideLine.clientWidth * 100}%
         - ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
+        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses

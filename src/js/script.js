@@ -39,22 +39,27 @@ window.onload = () => {
             breakpoint: {
                 1024: {
                     slide: {
-                        preView: [3, 2],
+                        preView: [1.2, 2],
                         position: 'center',
                         // step: 1,
                     },
                     transitionTime: 600,
+                    columnGap: 40,
+                },
+                768: {
+                    slide: {
+                        preView: [2.4],
+                        position: 'right',
+                        // step: 1,
+                    },
                     columnGap: 20,
                 },
-                // 768: {
-                //     slide: {
-                //         preView: [2, 3],
-                //         position: 'left',
-                //         // step: 1,
-                //     },
-                //     // columnGap: 40,
-                // },
                 425: {
+                    slide: {
+                        preView: [1],
+                        position: 'center',
+                        // step: 1,
+                    },
                     columnGap: 0,
                 }
             },
