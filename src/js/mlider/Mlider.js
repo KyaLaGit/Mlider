@@ -2,6 +2,8 @@ export class Mlider {
     constructor(selectors, opt) {
         this.selectors = selectors
         this.opt = opt !== undefined ? opt : {}
+        this.prevInd = 0
+        this.curInd = 0
         this.curBp = 0
 
         this.defualtOptions = {
@@ -246,7 +248,7 @@ export class Mlider {
         this.slideLineWidth = this.$slideLine.clientWidth
         this.slideLngth = this.$slides.length
         this.$slideLine.innerHTML = slidesJoin
-        this.$slides = Array.from(this.$slider.querySelectorAll(this.selectors.slideSelector))
+        this.$slides = this.$slider.querySelectorAll('.slide-mlider')
 
         // others
         this.$wrap.setAttribute('data-mlider-type', 'wrapper')
@@ -254,16 +256,8 @@ export class Mlider {
         if (this.$nextBtn) this.$nextBtn.setAttribute('data-mlider-type', 'next-btn')
 
         if (this.$dot) {
-            const dot = this.$dot
-            const dotParent = this.$dot.parentElement
-            dotParent.innerHTML = ''
-            dot.setAttribute('data-mlider-type', 'dot')
-            for (let i = 0; i < this.mainSlideLngth; i++) {
-                dot.setAttribute('data-mlider-index', i)
-                this.opt.counterInDot ? dot.innerHTML = i : null
-                dotParent.insertAdjacentHTML('beforeend', dot.outerHTML)
-            }
-            this.opt.dots = this.$slider.querySelectorAll(this.selectors.dotSelector)
+            this.$dot.setAttribute('data-mlider-type', 'dot')
+            this.$dotParent = this.$dot.parentElement
         }
     }
 
@@ -364,7 +358,7 @@ export class Mlider {
         - ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
 
         // others
-        // this.setCurrentClasses
+        this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
     }
 
@@ -386,6 +380,7 @@ export class Mlider {
                 this.opt.rectPosUpdate(-1)
             }
         }
+        this.$slides = this.$slider.querySelectorAll('.slide-mlider')
         this.#rectReset()
     }
 
@@ -647,16 +642,27 @@ export class Mlider {
 
     // GETTERS AND SETTERS
     get setCurrentClasses() {
-        // this.opt.mainSlideRect[this.prevInd].slides.forEach(slide => { slide.classList.remove(this.opt.currentClass) })
-        // this.opt.mainSlideRect[this.curInd].slides.forEach(slide => { slide.classList.add(this.opt.currentClass) })
+        this.$slides.forEach(slide => slide.classList.remove(this.opt.currentClass))
+        this.opt.mainSlideRect[this.curInd].slides.forEach(slide => slide.classList.add(this.opt.currentClass))
 
         if (this.$dot) {
-            this.opt.dots[this.#toInit(this.prevInd)].classList.remove(this.opt.currentClass)
-            this.opt.dots[this.#toInit(this.curInd)].classList.add(this.opt.currentClass)
+            if (this.$dotParent.children.length !== this.mainSlideLngth) {
+                let dotJoin = ''
+                for (let i = 0; i < this.mainSlideLngth; i++) {
+                    let dot = this.$dot
+                    dot.setAttribute('data-mlider-index', i)
+                    if (this.opt.counterInDot) dot.innerHTML = i
+                    dotJoin += dot.outerHTML
+                }
+                this.$dotParent.innerHTML = dotJoin
+                this.opt.dots = this.$slider.querySelectorAll('[data-mlider-type="dot"]')
+            }
+            this.opt.dots[this.prevInd].classList.remove(this.opt.currentClass)
+            this.opt.dots[this.curInd].classList.add(this.opt.currentClass)
         }
 
         if (this.$counter) {
-            this.$counter.innerHTML = `<span>${this.#toInit(this.curInd)}</span>/<span>${this.mainSlideLngth - 1}</span>`
+            this.$counter.innerHTML = `<span>${this.curInd}</span>/<span>${this.mainSlideLngth - 1}</span>`
         }
     }
 

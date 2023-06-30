@@ -137,11 +137,20 @@
     }
 }
 .slide-mlider {
+    position: relative;
     // padding: 0px 150px;
     text-align: center;
 
     &.current {
-        outline: 2px dashed #000;
+        &::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 15px;
+            background: #000;
+        }
     }
 
     &.empty {
