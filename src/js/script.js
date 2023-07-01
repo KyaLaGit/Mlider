@@ -25,42 +25,42 @@ window.onload = () => {
             // swipeEventOpt: {
             //     sensitivity: 2,
             // },
-            // slideGroup: 1,
             // autoViewSlide: false,
             // autoViewSlideOpt: {
             // time: 0,
             // direction: 'right',
             // },
             slide: {
-                preView: [2.5, [40, 55]],
+                preView: [[70, 30]],
                 position: 'left',
-                // step: 1,
+                step: 1,
             },
             breakpoint: {
-                1024: {
-                    slide: {
-                        preView: [1.2, 2],
-                        position: 'center',
-                        // step: 1,
-                    },
-                    transitionTime: 600,
-                    columnGap: 40,
-                },
-                768: {
-                    slide: {
-                        preView: [2.4],
-                        position: 'right',
-                        // step: 1,
-                    },
-                    columnGap: 20,
-                },
+                // 1024: {
+                //     slide: {
+                //         preView: [3.3],
+                //         position: 'left',
+                //         step: 1,
+                //     },
+                //     transitionTime: 800,
+                //     columnGap: 100,
+                // },
+                // 768: {
+                //     slide: {
+                //         preView: [1.9],
+                //         position: 'right',
+                //         // step: 1,
+                //     },
+                //     transitionTime: 500,
+                //     columnGap: 30,
+                // },
                 425: {
                     slide: {
-                        preView: [1],
-                        position: 'center',
+                        preView: [1.2],
+                        position: 'left',
                         // step: 1,
                     },
-                    columnGap: 0,
+                    columnGap: 10,
                 }
             },
         }

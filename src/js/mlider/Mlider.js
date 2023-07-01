@@ -22,7 +22,6 @@ export class Mlider {
             swipeEventOpt: {
                 sensitivity: 1,
             },
-            slideGroup: 1,
             autoViewSlide: false,
             autoViewSlideOpt: {
                 time: 0,
@@ -476,19 +475,22 @@ export class Mlider {
             // for sub slide line   
             if (this.opt.infinity && this.action && this.action !== 0) {
                 let moveSlideWdth = 0
+                let act = 0
                 if (this.action > 0) {
                     for (let i = 1; i < Math.abs(this.action) + 1; i++) {
                         moveSlideWdth += this.opt.rectByPos(this.mainSlideLngth - i).width
+                        act
                     }
                 } else if (this.action < 0) {
                     for (let i = 0; i < Math.abs(this.action); i++) {
                         moveSlideWdth += this.opt.rectByPos(i).width
+                        act
                     }
                 }
 
                 this.action > 0
-                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth, this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * Math.abs(this.action))
-                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth, this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * Math.abs(this.action))
+                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth, this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * 5)
+                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth, this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * 5)
             }
         }
 
@@ -670,13 +672,6 @@ export class Mlider {
         let check
         this.$slider && this.$slides.length > 0 ? check = true : (check = false, console.log('invalidKeyElements'))
         return check
-    }
-
-    #toInit(ind) {
-        while (ind > this.mainSlideLngth - 1) {
-            ind -= this.mainSlideLngth
-        }
-        return ind
     }
 }
 
