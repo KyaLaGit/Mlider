@@ -315,6 +315,7 @@ export class Mlider {
             for (let u = 0; u < this.styleLayout[i].length; u++) {
                 this.$slides[ind].style.flex = `0 0 calc(${this.styleLayout[i][u]}% - (${this.opt.columnGap}px 
                 - (${this.opt.columnGap}px / ${this.styleLayout[i].length})))`
+                this.$slides[ind].setAttribute('data-mlider-preView', this.styleLayout[i].length)
                 ind++
             }
         }
@@ -354,10 +355,11 @@ export class Mlider {
         if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% 
         + ${this.opt.subSlideLine.columnGapPoint}px))`
         this.$slideLine.style.transform = `translateX(calc(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
-        - ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
+        + ${this.opt.mainSlideRect[this.curInd].columnGap}px))`
+        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
-        this.setCurrentClasses
+        // this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
     }
 
@@ -411,7 +413,7 @@ export class Mlider {
             this.$subSlideLine.style.transform = ''
 
             // main slides rect
-            let secInd = 0
+            let slideInd = 0
             const slideSortArr = Array.from(this.$slides).sort(function (a, b) {
                 if (Number(a.getAttribute('data-mlider-index')) > Number(b.getAttribute('data-mlider-index'))) return 1
                 else return -1
@@ -424,21 +426,18 @@ export class Mlider {
                 let curSlides = []
 
                 for (let i = 0; i < this.stepLayout[ind]; i++) {
-                    const slide = slideSortArr[secInd]
+                    const slide = slideSortArr[slideInd]
+                    const slideWdth = slide.getBoundingClientRect().width
 
-                    curSlides.push(slide)
-                    curWidth += slide.clientWidth
-                    totalWidth += slide.clientWidth
+                    curSlides.push({ link: slide, preView: Number(slide.dataset.mliderPreview), ind: slideInd })
+                    curWidth += slideWdth
+                    totalWidth += slideWdth
 
-                    secInd++
+                    delete slide.dataset.mliderPreview
+                    slideInd++
                 }
 
-                curWidth += this.opt.columnGap * (this.stepLayout[ind] - 1)
-                totalWidth += this.opt.columnGap * (this.stepLayout[ind] - 1)
-
-                // mainRect.ind = ind
                 mainRect.pos = ind
-                mainRect.columnGap = this.opt.columnGap * ind
                 mainRect.step = this.stepLayout[ind]
                 if (this.opt.slide.position === 'left') mainRect.left = curWidth - totalWidth
                 else if (this.opt.slide.position === 'right') mainRect.right = wrapWidth - totalWidth
@@ -447,6 +446,30 @@ export class Mlider {
                 mainRect.slides = curSlides
 
                 this.opt.mainSlideRect.push(mainRect)
+            }
+
+            // + column gap
+            if (this.opt.columnGap !== 0) {
+                // add preView in mainRect
+                let slidesLngth = 0
+                for (let ind = 0; ind < this.mainSlideLngth; ind++) {
+                    const mainRect = this.opt.mainSlideRect[ind]
+                    // const step = mainRect.step
+                    let colGap = 0
+                    slidesLngth += mainRect.slides.length
+
+                    for (let i = 0; i < mainRect.slides.length; i++) {
+                        const slideOpt = mainRect.slides[i]
+                        const preView = slideOpt.preView
+                        const slideInd = slideOpt.ind + 1
+
+                        if (slideInd % preView === 0) { colGap = -(this.opt.columnGap * ind); break }
+                        colGap += this.opt.columnGap * (preView - slideInd % preView) / preView
+                    }
+
+                    mainRect.columnGap = colGap
+                    // mainRect[this.opt.slide.position] -= colGap + this.opt.columnGap * (slidesLngth - 1)
+                }
             }
 
             this.opt.rectByPos = (pos) => {
@@ -465,32 +488,30 @@ export class Mlider {
                 }
             }
         } else {
-            // slides opt update
+            // slides opt update 
+            // !!!!!!!!(try includes in next[for sub slide line])
             for (let i = 0; i < this.mainSlideLngth; i++) {
-                this.opt.mainSlideRect[i].slides = this.opt.mainSlideRect[i].slides.map(slide =>
-                    this.$slideLine.querySelector(`[data-mlider-index="${slide.getAttribute('data-mlider-index')}"]`)
+                this.opt.mainSlideRect[i].slides.forEach(slide =>
+                    slide.link = this.$slideLine.querySelector(`[data-mlider-index="${slide.link.getAttribute('data-mlider-index')}"]`)
                 )
             }
 
             // for sub slide line   
             if (this.opt.infinity && this.action && this.action !== 0) {
                 let moveSlideWdth = 0
-                let act = 0
                 if (this.action > 0) {
                     for (let i = 1; i < Math.abs(this.action) + 1; i++) {
                         moveSlideWdth += this.opt.rectByPos(this.mainSlideLngth - i).width
-                        act
                     }
                 } else if (this.action < 0) {
                     for (let i = 0; i < Math.abs(this.action); i++) {
                         moveSlideWdth += this.opt.rectByPos(i).width
-                        act
                     }
                 }
 
                 this.action > 0
-                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth, this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * 5)
-                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth, this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * 5)
+                    ? (this.opt.subSlideLine.movePoint += moveSlideWdth, this.opt.subSlideLine.columnGapPoint += this.opt.columnGap * Math.abs(this.action))
+                    : (this.opt.subSlideLine.movePoint -= moveSlideWdth, this.opt.subSlideLine.columnGapPoint -= this.opt.columnGap * Math.abs(this.action))
             }
         }
 
