@@ -265,7 +265,7 @@ export class Mlider {
         if (this.opt.mainSlideRect) this.viewSlide(0, false)
         this.action = 0
         this.updateSlideLineOpt
-        this.#generateLayouts()
+        this.#generateStepLayout()
         this.#generateFlexSizes()
         this.#rectReset(true)
         this.onTransition
@@ -275,10 +275,8 @@ export class Mlider {
 
 
 
-    #generateLayouts() {
+    #generateStepLayout() {
         this.stepLayout = []
-        this.styleLayout = []
-
         for (let i = 0, ind = 0; i <= this.slideLngth;) {
             const val = this.opt.slide.step[ind % this.opt.slide.step.length]
             const residue = this.slideLngth - i
@@ -292,32 +290,32 @@ export class Mlider {
                 break
             }
         }
-        for (let i = 0, ind = 0; i <= this.slideLngth;) {
-            const val = this.opt.slide.preView[ind % this.opt.slide.preView.length]
-            const residue = this.slideLngth - i
-
-            if (residue > val.length) {
-                this.styleLayout.push(val)
-                ind++
-                i += val.length
-            } else {
-                this.styleLayout.push(val.slice(0, residue))
-                break
-            }
-        }
         this.mainSlideLngth = this.stepLayout.length
     }
 
     #generateFlexSizes() {
         let ind = 0
+        let preViewInd = 0
+        this.opt.slides = []
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
-        for (let i = 0; i < this.styleLayout.length; i++) {
-            for (let u = 0; u < this.styleLayout[i].length; u++) {
-                this.$slides[ind].style.flex = `0 0 calc(${this.styleLayout[i][u]}% - (${this.opt.columnGap}px 
-                - (${this.opt.columnGap}px / ${this.styleLayout[i].length})))`
-                this.$slides[ind].setAttribute('data-mlider-preView', this.styleLayout[i].length)
-                ind++
+        outter: for (let i = 0; ; i === this.opt.slide.preView.length - 1 ? i = 0 : i++) {
+            for (let u = 0; u < this.opt.slide.preView[i].length; u++) {
+                if (this.$slides[ind]) {
+                    this.$slides[ind].style.flex = `0 0 calc(${this.opt.slide.preView[i][u]}% - (${this.opt.columnGap}px 
+                        - (${this.opt.columnGap}px / ${this.opt.slide.preView[i].length})))`
+                    this.opt.slides.push({
+                        ind,
+                        preViewInd,
+                        link: this.$slides[ind],
+                        preView: this.opt.slide.preView[i].length,
+                        width: this.$slides[ind].getBoundingClientRect().width,
+                    })
+                    ind++
+                } else {
+                    break outter
+                }
             }
+            preViewInd++
         }
     }
 
@@ -413,10 +411,6 @@ export class Mlider {
             this.$subSlideLine.style.transform = ''
 
             // main slides rect
-            const slideSortArr = Array.from(this.$slides).sort(function (a, b) {
-                if (Number(a.getAttribute('data-mlider-index')) > Number(b.getAttribute('data-mlider-index'))) return 1
-                else return -1
-            })
             let slideInd = 0
             let totalWidth = 0
             for (let ind = 0; ind < this.stepLayout.length; ind++) {
@@ -426,15 +420,14 @@ export class Mlider {
                 let curSlides = []
 
                 for (let i = 0; i < this.stepLayout[ind]; i++) {
-                    const slide = slideSortArr[slideInd]
-                    const slideWdth = slide.getBoundingClientRect().width
+                    const slide = this.opt.slides[slideInd]
+                    const slideWdth = slide.width
 
-                    curSlides.push({ link: slide, preView: Number(slide.dataset.mliderPreview), ind: slideInd })
+                    curSlides.push(slide)
                     curWidth += slideWdth
                     totalWidth += slideWdth
 
                     slideInd++
-                    delete slide.dataset.mliderPreview
                 }
 
                 mainRect.pos = ind
@@ -452,26 +445,27 @@ export class Mlider {
             if (this.opt.columnGap !== 0) {
                 // add preView in mainRect
                 let slidesLngth = 0
-                for (let ind = 0; ind < this.mainSlideLngth; ind++) {
-                    const mainRect = this.opt.mainSlideRect[ind]
+                for (let i = 0; i < this.mainSlideLngth; i++) {
+                    const mainRect = this.opt.mainSlideRect[i]
                     let colGap = 0
                     slidesLngth += mainRect.slides.length
 
                     for (let i = 0; i < mainRect.slides.length; i++) {
+                        const step = mainRect.step
                         const slideOpt = mainRect.slides[i]
                         const preView = slideOpt.preView
                         const slideInd = slideOpt.ind + 1
-                        const step = mainRect.step
+                        const preViewInd = slideOpt.preViewInd
 
-                        if (preView === step) { colGap = -(this.opt.columnGap * ind); break }
+                        if (preView === step) { colGap = -(this.opt.columnGap * preViewInd); break }
                         colGap += this.opt.columnGap * (preView - slideInd) / preView
-                        // colGap += this.opt.columnGap * (preView - slideInd % preView) / preView
                     }
 
                     mainRect.columnGap = colGap
                     mainRect[this.opt.slide.position] -= colGap + this.opt.columnGap * (slidesLngth - 1)
                 }
             }
+
 
             this.opt.rectByPos = (pos) => {
                 for (let i = 0; i < this.mainSlideLngth; i++) {
