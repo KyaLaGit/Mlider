@@ -265,7 +265,6 @@ export class Mlider {
         if (this.opt.mainSlideRect) this.viewSlide(0, false)
         this.action = 0
         this.updateSlideLineOpt
-        this.#generateStepLayout()
         this.#generateFlexSizes()
         this.#rectReset(true)
         this.onTransition
@@ -275,23 +274,6 @@ export class Mlider {
 
 
 
-    #generateStepLayout() {
-        this.stepLayout = []
-        for (let i = 0, ind = 0; i <= this.slideLngth;) {
-            const val = this.opt.slide.step[ind % this.opt.slide.step.length]
-            const residue = this.slideLngth - i
-
-            if (residue > val) {
-                this.stepLayout.push(val)
-                ind++
-                i += val
-            } else {
-                this.stepLayout.push(residue)
-                break
-            }
-        }
-        this.mainSlideLngth = this.stepLayout.length
-    }
 
     #generateFlexSizes() {
         let ind = 0
@@ -412,26 +394,35 @@ export class Mlider {
 
             // main slides rect
             let slideInd = 0
+            let stepInd = 0
             let totalWidth = 0
-            for (let ind = 0; ind < this.stepLayout.length; ind++) {
+            for (let ind = 0; ; ind === this.opt.slide.step.length - 1 ? ind = 0 : ind++) {
                 const mainRect = {}
                 const wrapWidth = this.opt.wrapRect.width
                 let curWidth = 0
+                let curStep = 0
                 let curSlides = []
 
-                for (let i = 0; i < this.stepLayout[ind]; i++) {
-                    const slide = this.opt.slides[slideInd]
-                    const slideWdth = slide.width
-
-                    curSlides.push(slide)
-                    curWidth += slideWdth
-                    totalWidth += slideWdth
-
-                    slideInd++
+                if (this.opt.slides[slideInd]) {
+                    for (let i = 0; i < this.opt.slide.step[ind]; i++) {
+                        const slide = this.opt.slides[slideInd]
+                        if (slide) {
+                            const slideWdth = slide.width
+                            curSlides.push(slide)
+                            curWidth += slideWdth
+                            totalWidth += slideWdth
+                            slideInd++
+                            curStep++
+                        } else {
+                            break
+                        }
+                    }
+                } else {
+                    break
                 }
 
-                mainRect.pos = ind
-                mainRect.step = this.stepLayout[ind]
+                mainRect.pos = stepInd
+                mainRect.step = curStep
                 if (this.opt.slide.position === 'left') mainRect.left = curWidth - totalWidth
                 else if (this.opt.slide.position === 'right') mainRect.right = wrapWidth - totalWidth
                 else if (this.opt.slide.position === 'center') mainRect.center = (wrapWidth - totalWidth + curWidth - totalWidth) / 2
@@ -439,7 +430,9 @@ export class Mlider {
                 mainRect.slides = curSlides
 
                 this.opt.mainSlideRect.push(mainRect)
+                stepInd++
             }
+            this.mainSlideLngth = this.opt.mainSlideRect.length
 
             // + column gap
             if (this.opt.columnGap !== 0) {
@@ -465,7 +458,6 @@ export class Mlider {
                     mainRect[this.opt.slide.position] -= colGap + this.opt.columnGap * (slidesLngth - 1)
                 }
             }
-
 
             this.opt.rectByPos = (pos) => {
                 for (let i = 0; i < this.mainSlideLngth; i++) {
