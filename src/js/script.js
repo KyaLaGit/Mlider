@@ -33,7 +33,7 @@ window.onload = () => {
             slide: {
                 preView: [2],
                 position: 'left',
-                // step: 1,
+                step: 2,
             },
             breakpoint: {
                 // 1024: {
@@ -95,9 +95,9 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3],
+                preView: [3, 2],
                 position: 'left',
-                step: 2,
+                step: 1,
             },
             breakpoint: {
                 // 1024: {
