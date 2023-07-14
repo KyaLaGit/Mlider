@@ -31,38 +31,38 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2],
-                position: 'left',
-                step: 2,
+                preView: [2.3],
+                position: 'center',
+                step: 1,
             },
-            breakpoint: {
-                // 1024: {
-                //     slide: {
-                //         preView: [3.3],
-                //         position: 'left',
-                //         step: 1,
-                //     },
-                //     transitionTime: 800,
-                //     columnGap: 100,
-                // },
-                // 768: {
-                //     slide: {
-                //         preView: [1.9],
-                //         position: 'right',
-                //         // step: 1,
-                //     },
-                //     transitionTime: 500,
-                //     columnGap: 30,
-                // },
-                425: {
-                    slide: {
-                        preView: [1.2],
-                        position: 'left',
-                        // step: 1,
-                    },
-                    columnGap: 10,
-                }
-            },
+            // breakpoint: {
+            //     1024: {
+            //         slide: {
+            //             preView: [3.3],
+            //             position: 'left',
+            //             step: 1,
+            //         },
+            //         transitionTime: 800,
+            //         columnGap: 100,
+            //     },
+            //     768: {
+            //         slide: {
+            //             preView: [1.9],
+            //             position: 'right',
+            //             // step: 1,
+            //         },
+            //         transitionTime: 500,
+            //         columnGap: 30,
+            //     },
+            //     425: {
+            //         slide: {
+            //             preView: [1.2],
+            //             position: 'left',
+            //             // step: 1,
+            //         },
+            //         columnGap: 10,
+            //     }
+            // },
         }
     )
 
@@ -95,38 +95,38 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3, 2],
-                position: 'left',
+                preView: [3.1],
+                position: 'center',
                 step: 1,
             },
-            breakpoint: {
-                // 1024: {
-                //     slide: {
-                //         preView: [3.3],
-                //         position: 'left',
-                //         step: 1,
-                //     },
-                //     transitionTime: 800,
-                //     columnGap: 100,
-                // },
-                // 768: {
-                //     slide: {
-                //         preView: [1.9],
-                //         position: 'right',
-                //         // step: 1,
-                //     },
-                //     transitionTime: 500,
-                //     columnGap: 30,
-                // },
-                425: {
-                    slide: {
-                        preView: [1.2],
-                        position: 'left',
-                        // step: 1,
-                    },
-                    columnGap: 10,
-                }
-            },
+            // breakpoint: {
+            //     1024: {
+            //         slide: {
+            //             preView: [3.3],
+            //             position: 'left',
+            //             step: 1,
+            //         },
+            //         transitionTime: 800,
+            //         columnGap: 100,
+            //     },
+            //     768: {
+            //         slide: {
+            //             preView: [1.9],
+            //             position: 'right',
+            //             // step: 1,
+            //         },
+            //         transitionTime: 500,
+            //         columnGap: 30,
+            //     },
+            //     425: {
+            //         slide: {
+            //             preView: [1.2],
+            //             position: 'left',
+            //             // step: 1,
+            //         },
+            //         columnGap: 10,
+            //     }
+            // },
         }
     )
 
