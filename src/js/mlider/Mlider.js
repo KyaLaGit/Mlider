@@ -446,8 +446,6 @@ export class Mlider {
                             calcColGap -= prevRect.slides.reduce((total, val) => total += val.calcColGap, 0)
                             rectColGap += this.opt.columnGap * prevRect.slides.length
                         }
-                        curRect.calcColGap = calcColGap
-                        curRect[this.opt.slide.position] -= rectColGap + calcColGap
                     } else if (this.opt.slide.position === 'right') {
                         if (first) {
                             calcColGap = this.opt.columnGap
@@ -456,20 +454,21 @@ export class Mlider {
                         }
                         calcColGap -= curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
                         rectColGap += this.opt.columnGap * curRect.slides.length
-                        curRect.calcColGap = calcColGap
-                        curRect[this.opt.slide.position] -= rectColGap + calcColGap
                     } else if (this.opt.slide.position === 'center') {
                         const prevRect = this.opt.mainSlideRect[i - 1]
                         if (first) {
-                            calcColGap = this.opt.columnGap
-                            rectColGap = -this.opt.columnGap
+                            calcColGap = curRect.slides.reduce((total, val) => total += val.calcColGap, 0) * 2
+                            rectColGap = -curRect.slides.reduce((total, val) => total += val.calcColGap, 0) * 2
                             first = false
                         }
                         calcColGap -= curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
-                        rectColGap += (this.opt.columnGap * curRect.slides.length + (prevRect ? this.opt.columnGap * prevRect.slides.length : 0))
+                        rectColGap += curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
                         curRect.calcColGap = calcColGap
                         curRect[this.opt.slide.position] -= rectColGap + calcColGap
                     }
+                    console.log("rectColGap:", rectColGap)
+                    curRect.calcColGap = calcColGap
+                    curRect[this.opt.slide.position] -= rectColGap + calcColGap
                 }
             }
 

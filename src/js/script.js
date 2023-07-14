@@ -16,7 +16,7 @@ window.onload = () => {
         // Options
         {
             infinity: false,
-            columnGap: 0,
+            columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -32,7 +32,7 @@ window.onload = () => {
             // },
             slide: {
                 preView: [2.3],
-                position: 'right',
+                position: 'left',
                 step: 1,
             },
             // breakpoint: {
@@ -80,7 +80,7 @@ window.onload = () => {
         // Options
         {
             infinity: false,
-            columnGap: 0,
+            columnGap: 50,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -95,8 +95,8 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3.1],
-                position: 'left',
+                preView: [[25, 55, 40]],
+                position: 'right',
                 step: 1,
             },
             // breakpoint: {
