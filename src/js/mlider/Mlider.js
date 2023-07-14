@@ -425,6 +425,7 @@ export class Mlider {
                 else if (this.opt.slide.position === 'center') mainRect.center = (wrapWidth - totalWidth + curWidth - totalWidth) / 2
                 mainRect.width = curWidth
                 mainRect.slides = curSlides
+                mainRect.calcColGap = 0
 
                 this.opt.mainSlideRect.push(mainRect)
                 stepInd++
