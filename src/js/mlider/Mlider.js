@@ -421,7 +421,7 @@ export class Mlider {
 
                 if (first) {
                     if (pos === 'left') mainRect.left = 0
-                    else if (pos === 'right') mainRect.right = -(wrapWdth - curWdth)
+                    else if (pos === 'right') mainRect.right = -(wrapWdth - curWdth - gap * (curStep - 1))
                     else if (pos === 'center') mainRect.center = -(wrapWdth - curWdth - gap * (curStep - 1)) / 2
                     first = false
                 } else {
@@ -430,7 +430,7 @@ export class Mlider {
                     const prevWdth = prevMainRect.width
                     const prevStep = prevMainRect.step
 
-                    if (pos === 'left') mainRect.left = prevPos + prevWdth + gap * curStep
+                    if (pos === 'left') mainRect.left = prevPos + prevWdth + gap * prevStep
                     else if (pos === 'right') mainRect.right = prevPos + curWdth + gap * curStep
                     else if (pos === 'center') mainRect.center = prevPos + (prevWdth + curWdth + gap * (curStep + prevStep)) / 2
                 }
@@ -447,36 +447,37 @@ export class Mlider {
             this.mainSlideLngth = this.opt.mainSlideRect.length
 
             // + column gap
-            // if (this.opt.columnGap !== 0) {
-            //     // add preView in mainRect
-            //     let first = true
-            //     let calcColGap = 0
-            //     let rectColGap = 0
-            //     for (let i = 0; i < this.mainSlideLngth; i++) {
-            //         const curRect = this.opt.mainSlideRect[i]
-            //         if (this.opt.slide.position === 'left') {
-            //             const prevRect = this.opt.mainSlideRect[i - 1]
-            //             if (prevRect) {
-            //                 calcColGap -= prevRect.slides.reduce((total, val) => total += val.calcColGap, 0)
-            //             }
-            //         } else if (this.opt.slide.position === 'right') {
-            //             if (first) {
-            //                 calcColGap = this.opt.columnGap
-            //                 first = false
-            //             }
-            //             calcColGap -= curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
-            //         } else if (this.opt.slide.position === 'center') {
-            //             const prevRect = this.opt.mainSlideRect[i - 1]
-            //             if (first) {
-            //                 calcColGap = curRect.slides.reduce((total, val) => total += val.calcColGap, 0) * 2
-            //                 first = false
-            //             }
-            //             calcColGap -= curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
-            //         }
-            //         curRect.calcColGap = calcColGap
-            //         curRect[this.opt.slide.position] -= calcColGap
-            //     }
-            // }
+            if (this.opt.columnGap !== 0) {
+                // add preView in mainRect
+                let first = true
+                let calcColGap = 0
+                for (let i = 0; i < this.mainSlideLngth; i++) {
+                    const curRect = this.opt.mainSlideRect[i]
+                    if (this.opt.slide.position === 'left') {
+                        const prevRect = this.opt.mainSlideRect[i - 1]
+                        if (prevRect) {
+                            calcColGap -= prevRect.slides.reduce((total, val) => total += val.calcColGap, 0)
+                        }
+                    } else if (this.opt.slide.position === 'right') {
+                        if (first) {
+                            calcColGap = this.opt.columnGap
+                            first = false
+                        }
+                        calcColGap -= curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
+                    } else if (this.opt.slide.position === 'center') {
+                        const prevRect = this.opt.mainSlideRect[i - 1]
+                        if (first) {
+                            calcColGap = (this.opt.columnGap + curRect.slides.reduce((total, val) => total += val.calcColGap, 0)) / 2
+                            first = false
+                        }
+                        const curCalc = curRect.slides.reduce((total, val) => total += val.calcColGap, 0)
+                        const prevCalc = prevRect ? prevRect.slides.reduce((total, val) => total += val.calcColGap, 0) : curCalc
+                        calcColGap -= (curCalc + prevCalc) / 2
+                    }
+                    curRect.calcColGap = calcColGap
+                    curRect[this.opt.slide.position] += calcColGap
+                }
+            }
 
             this.opt.rectByPos = (pos) => {
                 for (let i = 0; i < this.mainSlideLngth; i++) {
