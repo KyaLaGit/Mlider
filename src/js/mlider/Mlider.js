@@ -9,9 +9,9 @@ export class Mlider {
         this.defualtOptions = {
             infinity: false,
             slide: {
-                preView: 0,
+                preView: [[100]],
                 position: 'left',
-                step: 0,
+                step: [1],
             },
             columnGap: 0,
             currentClass: 'current',
@@ -93,8 +93,8 @@ export class Mlider {
     }
 
     #checkOptions() {
-        if (!this.opt.slide) this.opt.slide = Object.assign({}, this.defualtOptions.slide)
         this.#optionsRegulation()
+        if (!this.opt.slide) this.opt.slide = Object.assign({}, this.defualtOptions.slide)
         this.opt = Object.assign(Object.assign({}, this.defualtOptions), this.opt)
         this.#createNullBreakpoint()
     }
@@ -103,7 +103,7 @@ export class Mlider {
         if (typeof opt === 'object' && !Array.isArray(opt)) {
             for (let key in opt) {
                 const name = innerName ? innerName + key[0].toUpperCase() + key.slice(1) : key
-                if (typeof defOpt[key] === 'number') {
+                if (typeof defOpt[key] === 'number' || Array.isArray(defOpt[key])) {
                     opt[key] = this.#checkNumberOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'string') {
                     opt[key] = this.#checkStringOpt(opt[key], defOpt[key], name)
@@ -111,8 +111,11 @@ export class Mlider {
                     opt[key] = this.#checkBooleanOpt(opt[key], defOpt[key], name)
                 } else if (typeof defOpt[key] === 'object') {
                     this.#optionsRegulation({ opt: opt[key], defOpt: defOpt[key], innerName: name })
-                    opt[key] = Object.assign(Object.assign({}, this.defualtOptions[key]), opt[key])
-                    if (key === 'slide') { opt[key] = this.#slideOptRegulation(opt[key]) }
+                    if (key === 'slide') {
+                        opt[key] = this.#slideOptRegulation(opt[key])
+                    } else {
+                        opt[key] = Object.assign(Object.assign({}, this.defualtOptions[key]), opt[key])
+                    }
                 } else if (typeof defOpt[key] === 'undefined') {
                     if (name.includes('breakpoint')) {
                         if (this.#checkNumberOpt(key, 0, name) === 0) delete opt[key]
@@ -128,6 +131,11 @@ export class Mlider {
     }
 
     #slideOptRegulation(slideOpt) {
+
+        if (!slideOpt.preView) slideOpt.preView = this.defualtOptions.slide.preView
+        if (!slideOpt.position) slideOpt.position = this.defualtOptions.slide.position
+        if (!slideOpt.step) slideOpt.step = slideOpt.preView
+
         if (!Array.isArray(slideOpt.preView)) slideOpt.preView = [slideOpt.preView]
         if (!Array.isArray(slideOpt.step)) slideOpt.step = [slideOpt.step]
 
@@ -136,19 +144,19 @@ export class Mlider {
 
         slideOpt.preView = slideOpt.preView.map(opt => {
             if (!Array.isArray(opt)) {
-                const val = opt === 0 ? 1 : opt
+                const val = opt
                 opt = []
-                for (let i = 0; i < Math.floor(val); i++) { opt.push(100 / val) }
-            } else {
-                const optSum = opt.reduce((acc, val) => acc + val, 0)
-                const nullQant = opt.filter(opt => opt === 0).length
-                opt = opt.map(opt => opt === 0 ? (100 - optSum) / nullQant : opt)
+                for (let i = 0; i < (Math.floor(val) || 1); i++) { opt.push(100 / val) }
             }
             return opt
         })
-        slideOpt.step = slideOpt.step.map(opt => Array.isArray(opt) ? opt.length : Math.floor(opt))
+        slideOpt.step = slideOpt.step.map(opt => Array.isArray(opt) ? opt.length : (Math.floor(opt) || 1))
         if (slideOpt.step.every(opt => opt === slideOpt.step[0])) slideOpt.step = [slideOpt.step[0]]
 
+        this.defualtOptions.slide.preView = slideOpt.preView
+        this.defualtOptions.slide.position = slideOpt.position
+
+        console.log("slideOpt:", slideOpt)
         return slideOpt
     }
 
@@ -333,7 +341,6 @@ export class Mlider {
         + ${this.opt.subSlideLine.columnGapPoint}px))`
         this.$slideLine.style.transform = `translateX(calc(${-this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
         + ${this.opt.mainSlideRect[this.curInd].calcColGap}px))`
-        console.log("this.opt.mainSlideRect:", this.opt.mainSlideRect)
 
         // others
         // this.setCurrentClasses
