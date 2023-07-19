@@ -15,8 +15,8 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: false,
-            columnGap: 30,
+            infinity: true,
+            columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
@@ -31,7 +31,7 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3.2],
+                preView: [2.2],
                 position: 'left',
                 // step: 3,
             },
