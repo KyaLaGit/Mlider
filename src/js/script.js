@@ -31,8 +31,8 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2.2],
-                position: 'left',
+                preView: [3],
+                position: 'center',
                 // step: 3,
             },
             breakpoint: {
