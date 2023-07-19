@@ -183,7 +183,9 @@ export class Mlider {
 
             if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
-                this.#reset()
+                if (newOptArr.includes('slide') || newOptArr.includes('columnGap') || newOptArr.includes('infinity')) {
+                    this.#reset()
+                }
             }
         }
     }
@@ -268,13 +270,12 @@ export class Mlider {
 
     #reset() {
         this.offTransition
-        if (this.opt.mainSlideRect) this.viewSlide(0, false)
+        if (this.opt.mainSlideRect) this.viewSlide(0, { infinity: false })
         this.action = 0
         this.updateSlideLineOpt
         this.#generateFlexSizes()
         this.#rectReset(true)
-        this.onTransition
-        this.viewSlide()
+        this.viewSlide(0, { transition: false })
     }
 
 
@@ -324,7 +325,8 @@ export class Mlider {
 
 
     // VIEW SLIDES
-    viewSlide(ind = 0, infinity = this.opt.infinity) {
+    viewSlide(ind = 0, { infinity = this.opt.infinity, transition = true } = {}) {
+        if (transition) this.onTransition
         // index and actions
         this.prevInd = this.curInd
         this.curInd = this.#getCheckInd(ind)
@@ -340,7 +342,7 @@ export class Mlider {
         + ${this.opt.mainSlideRect[this.curInd].calcColGap}px))`
 
         // others
-        // this.setCurrentClasses
+        this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
     }
 
@@ -411,13 +413,9 @@ export class Mlider {
                             curWdth += slideWdth
                             slideInd++
                             curStep++
-                        } else {
-                            break
-                        }
+                        } else break
                     }
-                } else {
-                    break
-                }
+                } else break
 
                 mainRect.pos = stepInd
                 mainRect.step = curStep
@@ -648,7 +646,7 @@ export class Mlider {
     // GETTERS AND SETTERS
     get setCurrentClasses() {
         this.$slides.forEach(slide => slide.classList.remove(this.opt.currentClass))
-        this.opt.mainSlideRect[this.curInd].slides.forEach(slide => slide.classList.add(this.opt.currentClass))
+        this.opt.mainSlideRect[this.curInd].slides.forEach(slideOpt => slideOpt.link.classList.add(this.opt.currentClass))
 
         if (this.$dot) {
             if (this.$dotParent.children.length !== this.mainSlideLngth) {

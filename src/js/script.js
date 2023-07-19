@@ -31,18 +31,21 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3],
-                position: 'center',
+                preView: [2],
+                position: 'right',
                 // step: 3,
             },
             breakpoint: {
-                // 1024: {
-                //     slide: {
-                //         preView: [3.2],
-                //         // position: 'left',
-                //         // step: 1,
-                //     },
-                // },
+                1024: {
+                    // slide: {
+                    //     preView: [3],
+                    //     // position: 'left',
+                    //     // step: 1,
+                    // },
+                    counterInDot: false,
+                    keyboardEvent: false,
+                    transitionTime: 1300,
+                },
                 // 768: {
                 //     slide: {
                 //         preView: [1.9],
