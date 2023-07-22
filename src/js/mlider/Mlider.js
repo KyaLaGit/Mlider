@@ -37,8 +37,8 @@ export class Mlider {
         if (this.validKeyElements) {
             this.#resetOptOnBp(document.documentElement.clientWidth)
             this.#generate()
-            this.#event()
             this.#reset()
+            this.#eventReset()
         }
     }
 
@@ -60,8 +60,6 @@ export class Mlider {
             this.$wrap = this.$slides[0].parentElement
         }
     }
-
-    // ugly govno(peredelivay)
 
     #checkSelector(selector, name) {
         if (selector !== undefined && selector !== null) {
@@ -539,8 +537,11 @@ export class Mlider {
 
 
     // EVENTS
-    #event() {
-        this.$slider.addEventListener('click', this.mouseEvent.bind(this))
+    #eventReset() {
+
+        if (this.$prevBtn || this.$nextBtn || this.$counter) {
+            this.$slider.addEventListener('click', this.mouseEvent.bind(this))
+        }
 
         if (this.opt.keyboardEvent) {
             document.addEventListener('keydown', this.keyboardEvent.bind(this))
@@ -564,7 +565,6 @@ export class Mlider {
 
     mouseEvent(e) {
         const elem = e.target
-
         if (elem.closest('[data-mlider-type="prev-btn"]')) {
             this.viewSlide(this.curInd - 1)
         } else if (elem.closest('[data-mlider-type="next-btn"]')) {
