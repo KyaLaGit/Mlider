@@ -23,7 +23,8 @@ window.onload = () => {
             keyboardEvent: true,
             swipeEvent: true,
             swipeEventOpt: {
-                sensitivity: 1,
+                sensitivity: 0.75,
+                limit: 0.4,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
@@ -31,9 +32,9 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2],
-                position: 'right',
-                // step: 3,
+                preView: [[30, 70]],
+                position: 'center',
+                step: 1,
             },
             breakpoint: {
                 1024: {

@@ -20,7 +20,8 @@ export class Mlider {
             keyboardEvent: true,
             swipeEvent: true,
             swipeEventOpt: {
-                sensitivity: 1,
+                sensitivity: 0.75,
+                limit: 0.5,
             },
             autoViewSlide: false,
             autoViewSlideOpt: {
@@ -312,7 +313,7 @@ export class Mlider {
     }
 
     get onTransition() {
-        this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s linear`
+        this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
     }
 
 
@@ -554,10 +555,12 @@ export class Mlider {
         if (this.opt.swipeEvent) {
             this.swipe = false
             this.swipePoint = 0
+            this.swipeNullPoint = this.getCurSlidePosRect
             this.swipeEvent = this.swipeEvent.bind(this)
             document.addEventListener('mousedown', this.swipeEvent)
             document.addEventListener('mousemove', this.swipeEvent)
             document.addEventListener('mouseup', this.swipeEvent)
+            this.$slideLine.addEventListener('transitionend', this.transitionendEvent.bind(this))
         }
 
         if (this.opt.breakpoint) {
@@ -596,9 +599,8 @@ export class Mlider {
 
         if (type === 'mousedown' && target.closest('[data-mlider-type="wrapper"]')) {
             this.swipe = true
+            this.swipePoint = this.getCurSlidePosRect - this.swipeNullPoint
             this.offTransition
-            clearInterval(this.swipeInterval)
-            console.log("this.swipePoint:", this.swipePoint)
             this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]} + ${this.swipePoint / this.slideLineWidth * 100}%))`
         }
         if (type === 'mousemove' && this.swipe) {
@@ -609,33 +611,31 @@ export class Mlider {
             this.swipe = false
             this.onTransition
 
-            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > this.opt.mainSlideRect[this.curInd].width / 2) {
+            const limit = this.opt.mainSlideRect[this.curInd].width * this.opt.swipeEventOpt.limit
+            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > limit) {
                 this.viewSlide(this.curInd + 1)
-            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > this.opt.mainSlideRect[this.curInd].width / 2) {
+            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > limit) {
                 this.viewSlide(this.curInd - 1)
             } else {
                 this.viewSlide(this.curInd)
             }
-            this.downsizeSwipePoint
         }
     }
 
-    get downsizeSwipePoint() {
-        const initPoint = this.swipePoint
-        const delay = 10
-        const numb = Math.abs(this.swipePoint / (this.opt.transitionTime / delay))
-        this.swipeInterval = setInterval(() => {
-            if (initPoint > 0) {
-                this.swipePoint -= numb
-                if (this.swipePoint <= 0) { clearInterval(this.swipeInterval); this.swipePoint = 0 }
-            } else if (initPoint < 0) {
-                this.swipePoint += numb
-                if (this.swipePoint >= 0) { clearInterval(this.swipeInterval); this.swipePoint = 0 }
-            }
-        }, delay)
+    transitionendEvent(e) {
+        this.swipeNullPoint = this.getCurSlidePosRect
     }
 
-
+    get getCurSlidePosRect() {
+        if (this.opt.slide.position === 'left') {
+            return this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().left
+        } else if (this.opt.slide.position === 'right') {
+            return this.opt.mainSlideRect[this.curInd].slides[this.opt.mainSlideRect[this.curInd].slides.length - 1].link.getBoundingClientRect().right
+        } else if (this.opt.slide.position === 'center') {
+            return this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().left
+                + (this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().width / 2)
+        }
+    }
 
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
