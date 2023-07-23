@@ -21,10 +21,10 @@ window.onload = () => {
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
-            swipeEvent: false,
-            // swipeEventOpt: {
-            //     sensitivity: 2,
-            // },
+            swipeEvent: true,
+            swipeEventOpt: {
+                sensitivity: 1,
+            },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
             // time: 0,
@@ -132,3 +132,4 @@ window.onload = () => {
     // )
 
 }
+

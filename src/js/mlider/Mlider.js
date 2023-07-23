@@ -312,7 +312,7 @@ export class Mlider {
     }
 
     get onTransition() {
-        this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
+        this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s linear`
     }
 
 
@@ -332,12 +332,11 @@ export class Mlider {
             ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
             : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
         this.slideShift()
+        this.calcStrsArr = this.createCalcStrsArr
 
         // main actions
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% 
-        + ${this.opt.subSlideLine.colGapPoint}px))`
-        this.$slideLine.style.transform = `translateX(calc(${-this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}%
-        + ${this.opt.mainSlideRect[this.curInd].calcColGap}px))`
+        this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]}))`
+        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.calcStrsArr[1]}))`
 
         // others
         this.setCurrentClasses
@@ -364,6 +363,11 @@ export class Mlider {
         }
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
         this.#rectReset()
+    }
+
+    get createCalcStrsArr() {
+        return [`${-this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}% + ${this.opt.mainSlideRect[this.curInd].calcColGap}px`,
+        `${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% + ${this.opt.subSlideLine.colGapPoint}px`]
     }
 
     #getCheckInd(index) {
@@ -592,29 +596,46 @@ export class Mlider {
 
         if (type === 'mousedown' && target.closest('[data-mlider-type="wrapper"]')) {
             this.swipe = true
-            const firstSlideRect = this.opt.mainSlideRect[this.curInd].slides[0].getBoundingClientRect()
-            this.swipePoint = this.prevLeftVal ? this.prevLeftVal - firstSlideRect.left : 0
-            this.$slideLine.style.transition = `none`
-        } else if (type === 'mousemove' && this.swipe) {
+            this.offTransition
+            clearInterval(this.swipeInterval)
+            console.log("this.swipePoint:", this.swipePoint)
+            this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]} + ${this.swipePoint / this.slideLineWidth * 100}%))`
+        }
+        if (type === 'mousemove' && this.swipe) {
             this.swipePoint += e.movementX * this.opt.swipeEventOpt.sensitivity
-            this.$slideLine.style.transform = `translate(${this.opt.mainSlideRect[this.curInd][this.opt.slide.position] + this.swipePoint}px, 0px)`
-        } else if (type === 'mouseup') {
+            this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]} + ${this.swipePoint / this.slideLineWidth * 100}%))`
+        }
+        if (type === 'mouseup' && this.swipe) {
             this.swipe = false
-            this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
+            this.onTransition
 
-            const curRect = this.opt.mainSlideRect[this.curInd][this.opt.slide.position]
-            const curPos = this.opt.mainSlideRect[this.curInd].pos
-            if (curRect + this.swipePoint < this.opt.rectByPos(curPos + 1)[this.opt.slide.position] + 500) {
+            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > this.opt.mainSlideRect[this.curInd].width / 2) {
                 this.viewSlide(this.curInd + 1)
-            } else if (curRect + this.swipePoint > this.opt.rectByPos(curPos - 1)[this.opt.slide.position] - 500) {
+            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > this.opt.mainSlideRect[this.curInd].width / 2) {
                 this.viewSlide(this.curInd - 1)
             } else {
                 this.viewSlide(this.curInd)
             }
-
-            this.prevLeftVal = this.opt.mainSlideRect[this.curInd].slides[0].getBoundingClientRect().left
+            this.downsizeSwipePoint
         }
     }
+
+    get downsizeSwipePoint() {
+        const initPoint = this.swipePoint
+        const delay = 10
+        const numb = Math.abs(this.swipePoint / (this.opt.transitionTime / delay))
+        this.swipeInterval = setInterval(() => {
+            if (initPoint > 0) {
+                this.swipePoint -= numb
+                if (this.swipePoint <= 0) { clearInterval(this.swipeInterval); this.swipePoint = 0 }
+            } else if (initPoint < 0) {
+                this.swipePoint += numb
+                if (this.swipePoint >= 0) { clearInterval(this.swipeInterval); this.swipePoint = 0 }
+            }
+        }, delay)
+    }
+
+
 
     breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
