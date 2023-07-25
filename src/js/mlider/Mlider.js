@@ -473,9 +473,11 @@ export class Mlider {
             if (pos === 'left') {
                 firstRect[pos] = 0
             } else if (pos === 'right') {
-                firstRect[pos] = -(wrap.width - firstRect.width - gap * (firstRect.step - 1))
+                calcColGap = this.opt.columnGap - firstRect.slides.reduce((total, val) => total += val.calcColGap, 0)
+                firstRect[pos] = -(wrap.width - firstRect.width - gap * (firstRect.step - 1) - calcColGap)
             } else if (pos === 'center') {
-                firstRect[pos] = -(wrap.width - firstRect.width - gap * (firstRect.step - 1)) / 2
+                calcColGap = (this.opt.columnGap - firstRect.slides.reduce((total, val) => total += val.calcColGap, 0)) / 2
+                firstRect[pos] = -(wrap.width - firstRect.width - gap * (firstRect.step - 1)) / 2 + calcColGap
             }
             firstRect.calcColGap = calcColGap
             act = this.mainSlideLngth - 1

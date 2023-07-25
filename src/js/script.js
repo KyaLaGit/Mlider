@@ -15,7 +15,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: true,
+            infinity: false,
             columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
