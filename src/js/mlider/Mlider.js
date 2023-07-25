@@ -324,8 +324,10 @@ export class Mlider {
 
 
     // VIEW SLIDES
-    viewSlide(ind = 0, { infinity = this.opt.infinity, transition = true } = {}) {
+    viewSlide(ind = 0, { infinity = this.opt.infinity, transition = true, translate = true } = {}) {
         if (transition) this.onTransition
+        else this.offTransition
+
         // index and actions
         this.prevInd = this.curInd
         this.curInd = this.#getCheckInd(ind)
@@ -333,15 +335,27 @@ export class Mlider {
             ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
             : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
         this.slideShift()
-        this.calcStrsArr = this.createCalcStrsArr
 
         // main actions
-        this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]}))`
-        if (this.opt.infinity) this.$subSlideLine.style.transform = `translateX(calc(${this.calcStrsArr[1]}))`
+        if (translate) this.#setTranslate(this.$slideLine,
+            { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
+        if (infinity) this.#setTranslate(this.$subSlideLine,
+            { pos: this.opt.subSlideLine.movePoint, colGap: this.opt.subSlideLine.colGapPoint })
 
         // others
         this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
+    }
+
+    #setTranslate(line, { pos = 0, colGap = 0, swipe = 0 } = {}) {
+        if (line === this.$slideLine) {
+            pos = -pos / this.slideLineWidth * 100
+            swipe = swipe / this.slideLineWidth * 100
+            this.$slideLine.style.transform = `translateX(calc(${pos}% + ${colGap}px + ${swipe}%))`
+        } else if (line === this.$subSlideLine) {
+            pos = pos / this.slideLineWidth * 100
+            this.$subSlideLine.style.transform = `translateX(calc(${pos}% + ${colGap}px))`
+        }
     }
 
     slideShift() {
@@ -364,11 +378,6 @@ export class Mlider {
         }
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
         this.#rectReset()
-    }
-
-    get createCalcStrsArr() {
-        return [`${-this.opt.mainSlideRect[this.curInd][this.opt.slide.position] / this.slideLineWidth * 100}% + ${this.opt.mainSlideRect[this.curInd].calcColGap}px`,
-        `${this.opt.subSlideLine.movePoint / this.slideLineWidth * 100}% + ${this.opt.subSlideLine.colGapPoint}px`]
     }
 
     #getCheckInd(index) {
@@ -599,27 +608,29 @@ export class Mlider {
 
         if (type === 'mousedown' && target.closest('[data-mlider-type="wrapper"]')) {
             this.swipe = true
+            this.swipeNullPos = this.calcStrsArr[0]
             this.swipePoint = this.getCurSlidePosRect - this.swipeNullPoint
+            this.$slideLine.style.transform = `translateX(calc(${this.swipeNullPos} + ${this.swipePoint / this.slideLineWidth * 100}%))`
             this.offTransition
-            this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]} + ${this.swipePoint / this.slideLineWidth * 100}%))`
         }
         if (type === 'mousemove' && this.swipe) {
             this.swipePoint += e.movementX * this.opt.swipeEventOpt.sensitivity
-            this.$slideLine.style.transform = `translateX(calc(${this.calcStrsArr[0]} + ${this.swipePoint / this.slideLineWidth * 100}%))`
+            this.$slideLine.style.transform = `translateX(calc(${this.swipeNullPos} + ${this.swipePoint / this.slideLineWidth * 100}%))`
+
+            const limit = this.opt.mainSlideRect[this.curInd].width * this.opt.swipeEventOpt.limit
+            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > limit) {
+                this.viewSlide(this.curInd + 1, { translate: false })
+                this.swipePoint = 0
+            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > limit) {
+                this.viewSlide(this.curInd - 1, { translate: false })
+            }
         }
         if (type === 'mouseup' && this.swipe) {
             this.swipe = false
             this.onTransition
-
-            const limit = this.opt.mainSlideRect[this.curInd].width * this.opt.swipeEventOpt.limit
-            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > limit) {
-                this.viewSlide(this.curInd + 1)
-            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > limit) {
-                this.viewSlide(this.curInd - 1)
-            } else {
-                this.viewSlide(this.curInd)
-            }
+            this.viewSlide(this.curInd)
         }
+
     }
 
     transitionendEvent(e) {
