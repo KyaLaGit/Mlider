@@ -36,10 +36,10 @@ export class Mlider {
         this.#checkOptions()
 
         if (this.validKeyElements) {
-            this.#resetOptOnBp(document.documentElement.clientWidth)
+            this.resetOptOnBp(document.documentElement.clientWidth)
             this.#generate()
-            this.#reset()
-            this.#eventReset()
+            this.reset()
+            this.eventReset()
         }
     }
 
@@ -172,7 +172,7 @@ export class Mlider {
         }
     }
 
-    #resetOptOnBp(docSize = 0, reset) {
+    resetOptOnBp(docSize = 0, reset) {
         const bpArr = this.bpArr.filter(bp => docSize <= bp)
         const bp = Math.min(...bpArr) === Infinity ? 0 : Math.min(...bpArr)
 
@@ -183,11 +183,18 @@ export class Mlider {
             if (reset) {
                 const newOptArr = [...Object.keys(this.opt.breakpoint[bp])]
                 if (newOptArr.includes('slide') || newOptArr.includes('columnGap') || newOptArr.includes('infinity')) {
-                    this.#reset()
+                    this.reset()
                 }
             }
         }
     }
+
+    get validKeyElements() {
+        let check
+        this.$slider && this.$slides.length > 0 ? check = true : (check = false, console.log('invalidKeyElements'))
+        return check
+    }
+
 
 
 
@@ -267,7 +274,7 @@ export class Mlider {
         }
     }
 
-    #reset() {
+    reset() {
         this.offTransition
         if (this.opt.mainSlideRect) this.viewSlide(0, { infinity: false })
         this.action = 0
@@ -334,7 +341,7 @@ export class Mlider {
         infinity
             ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
             : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
-        this.slideShift()
+        this.#slideShift()
 
         // main actions
         if (translate) this.#setTranslate(this.$slideLine,
@@ -358,7 +365,7 @@ export class Mlider {
         }
     }
 
-    slideShift() {
+    #slideShift() {
         for (let i = 0; i < Math.abs(this.action); i++) {
             if (this.action > 0) {
                 for (let v = 0; v < this.opt.rectByPos(0).slides.length; v++) {
@@ -541,9 +548,43 @@ export class Mlider {
         }
     }
 
+    #intervalView() {
+        clearInterval(this.interval)
+        this.interval = setInterval(() => {
 
+            if (this.opt.autoViewSlideOpt.direction === 'left') {
+                this.viewSlide(this.curInd - 1)
+            } else if (this.opt.autoViewSlideOpt.direction === 'right') {
+                this.viewSlide(this.curInd + 1)
+            }
 
+        }, this.opt.autoViewSlideOpt.time)
+    }
 
+    get setCurrentClasses() {
+        this.$slides.forEach(slide => slide.classList.remove(this.opt.currentClass))
+        this.opt.mainSlideRect[this.curInd].slides.forEach(slideOpt => slideOpt.link.classList.add(this.opt.currentClass))
+
+        if (this.$dot) {
+            if (this.$dotParent.children.length !== this.mainSlideLngth) {
+                let dotJoin = ''
+                for (let i = 0; i < this.mainSlideLngth; i++) {
+                    let dot = this.$dot
+                    dot.setAttribute('data-mlider-index', i)
+                    if (this.opt.counterInDot) dot.innerHTML = i
+                    dotJoin += dot.outerHTML
+                }
+                this.$dotParent.innerHTML = dotJoin
+                this.opt.dots = this.$slider.querySelectorAll('[data-mlider-type="dot"]')
+            }
+            this.opt.dots[this.prevInd].classList.remove(this.opt.currentClass)
+            this.opt.dots[this.curInd].classList.add(this.opt.currentClass)
+        }
+
+        if (this.$counter) {
+            this.$counter.innerHTML = `<span>${this.curInd}</span>/<span>${this.mainSlideLngth - 1}</span>`
+        }
+    }
 
 
 
@@ -553,35 +594,33 @@ export class Mlider {
 
 
     // EVENTS
-    #eventReset() {
-
+    eventReset() {
         if (this.$prevBtn || this.$nextBtn || this.$counter) {
-            this.$slider.addEventListener('click', this.mouseEvent.bind(this))
+            this.$slider.addEventListener('click', this.#mouseEvent.bind(this))
         }
 
         if (this.opt.keyboardEvent) {
-            document.addEventListener('keydown', this.keyboardEvent.bind(this))
+            document.addEventListener('keydown', this.#keyboardEvent.bind(this))
         }
 
         if (this.opt.swipeEvent) {
             this.swipe = false
             this.swipePoint = 0
             this.swipeNullPoint = this.getCurSlidePosRect
-            this.swipeEvent = this.swipeEvent.bind(this)
-            document.addEventListener('mousedown', this.swipeEvent)
-            document.addEventListener('mousemove', this.swipeEvent)
-            document.addEventListener('mouseup', this.swipeEvent)
-            this.$slideLine.addEventListener('transitionend', this.transitionendEvent.bind(this))
+            document.addEventListener('mousedown', this.#swipeEvent.bind(this))
+            document.addEventListener('mousemove', this.#swipeEvent.bind(this))
+            document.addEventListener('mouseup', this.#swipeEvent.bind(this))
+            this.$slideLine.addEventListener('transitionend', this.#transitionendEvent.bind(this))
         }
 
         if (this.opt.breakpoint) {
             this.breakpointArr = []
-            window.addEventListener('resize', this.breakpointEvent.bind(this))
-            this.breakpointEvent()
+            window.addEventListener('resize', this.#breakpointEvent.bind(this))
+            this.#breakpointEvent()
         }
     }
 
-    mouseEvent(e) {
+    #mouseEvent(e) {
         const elem = e.target
         if (elem.closest('[data-mlider-type="prev-btn"]')) {
             this.viewSlide(this.curInd - 1)
@@ -593,7 +632,7 @@ export class Mlider {
         }
     }
 
-    keyboardEvent(e) {
+    #keyboardEvent(e) {
         const key = e.key
         const repeat = e.repeat
 
@@ -604,7 +643,7 @@ export class Mlider {
         }
     }
 
-    swipeEvent(e) {
+    #swipeEvent(e) {
         const target = e.target
         const type = e.type
 
@@ -635,7 +674,7 @@ export class Mlider {
 
     }
 
-    transitionendEvent(e) {
+    #transitionendEvent(e) {
         this.swipeNullPoint = this.getCurSlidePosRect
     }
 
@@ -650,63 +689,9 @@ export class Mlider {
         }
     }
 
-    breakpointEvent(e) {
+    #breakpointEvent(e) {
         const docSize = document.documentElement.clientWidth
-        this.#resetOptOnBp(docSize, true)
-    }
-
-    #intervalView() {
-        clearInterval(this.interval)
-        this.interval = setInterval(() => {
-
-            if (this.opt.autoViewSlideOpt.direction === 'left') {
-                this.viewSlide(this.curInd - 1)
-            } else if (this.opt.autoViewSlideOpt.direction === 'right') {
-                this.viewSlide(this.curInd + 1)
-            }
-
-        }, this.opt.autoViewSlideOpt.time)
-    }
-
-
-
-
-
-
-
-
-
-
-    // GETTERS AND SETTERS
-    get setCurrentClasses() {
-        this.$slides.forEach(slide => slide.classList.remove(this.opt.currentClass))
-        this.opt.mainSlideRect[this.curInd].slides.forEach(slideOpt => slideOpt.link.classList.add(this.opt.currentClass))
-
-        if (this.$dot) {
-            if (this.$dotParent.children.length !== this.mainSlideLngth) {
-                let dotJoin = ''
-                for (let i = 0; i < this.mainSlideLngth; i++) {
-                    let dot = this.$dot
-                    dot.setAttribute('data-mlider-index', i)
-                    if (this.opt.counterInDot) dot.innerHTML = i
-                    dotJoin += dot.outerHTML
-                }
-                this.$dotParent.innerHTML = dotJoin
-                this.opt.dots = this.$slider.querySelectorAll('[data-mlider-type="dot"]')
-            }
-            this.opt.dots[this.prevInd].classList.remove(this.opt.currentClass)
-            this.opt.dots[this.curInd].classList.add(this.opt.currentClass)
-        }
-
-        if (this.$counter) {
-            this.$counter.innerHTML = `<span>${this.curInd}</span>/<span>${this.mainSlideLngth - 1}</span>`
-        }
-    }
-
-    get validKeyElements() {
-        let check
-        this.$slider && this.$slides.length > 0 ? check = true : (check = false, console.log('invalidKeyElements'))
-        return check
+        this.resetOptOnBp(docSize, true)
     }
 }
 
