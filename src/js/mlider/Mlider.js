@@ -21,7 +21,6 @@ export class Mlider {
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 0.75,
-                limit: 0.5,
             },
             autoViewSlide: false,
             autoViewSlideOpt: {
@@ -605,8 +604,11 @@ export class Mlider {
 
         if (this.opt.swipeEvent) {
             this.swipe = false
-            this.swipePoint = 0
-            this.swipeNullPoint = this.getCurSlidePosRect
+            this.totalSwipePoint = 0
+            this.curSwipePoint = 0
+            this.curSwipePointSign = 1
+            this.swipeLimitPoint = 0
+            this.curSlideRect = this.getCurSlideRect
             document.addEventListener('mousedown', this.#swipeEvent.bind(this))
             document.addEventListener('mousemove', this.#swipeEvent.bind(this))
             document.addEventListener('mouseup', this.#swipeEvent.bind(this))
@@ -648,22 +650,32 @@ export class Mlider {
         const type = e.type
 
         if (type === 'mousedown' && target.closest('[data-mlider-type="wrapper"]')) {
+            this.swipeNullPos = [this.opt.mainSlideRect[this.curInd][this.opt.slide.position], this.opt.mainSlideRect[this.curInd].calcColGap]
+            this.totalSwipePoint = this.getCurSlideRect - this.curSlideRect
+            this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
+            this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
+
             this.swipe = true
-            this.swipeNullPos = this.calcStrsArr[0]
-            this.swipePoint = this.getCurSlidePosRect - this.swipeNullPoint
-            this.$slideLine.style.transform = `translateX(calc(${this.swipeNullPos} + ${this.swipePoint / this.slideLineWidth * 100}%))`
             this.offTransition
         }
         if (type === 'mousemove' && this.swipe) {
-            this.swipePoint += e.movementX * this.opt.swipeEventOpt.sensitivity
-            this.$slideLine.style.transform = `translateX(calc(${this.swipeNullPos} + ${this.swipePoint / this.slideLineWidth * 100}%))`
+            const movement = e.movementX * this.opt.swipeEventOpt.sensitivity
+            if (Math.abs(movement) < this.swipeLimitPoint) {
+                this.totalSwipePoint += movement
+                this.curSwipePoint += movement * this.curSwipePointSign
+                this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
 
-            const limit = this.opt.mainSlideRect[this.curInd].width * this.opt.swipeEventOpt.limit
-            if (this.swipePoint < 0 && Math.abs(this.swipePoint) > limit) {
-                this.viewSlide(this.curInd + 1, { translate: false })
-                this.swipePoint = 0
-            } else if (this.swipePoint > 0 && Math.abs(this.swipePoint) > limit) {
-                this.viewSlide(this.curInd - 1, { translate: false })
+                if (Math.abs(this.curSwipePoint) > this.swipeLimitPoint) {
+                    if (movement < 0) {
+                        this.viewSlide(this.curInd + 1, { transition: false, translate: false })
+                        this.curSwipePoint += (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
+                    } else if (movement > 0) {
+                        this.viewSlide(this.curInd - 1, { transition: false, translate: false })
+                        this.curSwipePoint -= (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
+                    }
+                    this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
+                    this.curSwipePointSign = -this.curSwipePointSign
+                }
             }
         }
         if (type === 'mouseup' && this.swipe) {
@@ -675,10 +687,10 @@ export class Mlider {
     }
 
     #transitionendEvent(e) {
-        this.swipeNullPoint = this.getCurSlidePosRect
+        this.swipeNullPos = this.getCurSlideRect
     }
 
-    get getCurSlidePosRect() {
+    get getCurSlideRect() {
         if (this.opt.slide.position === 'left') {
             return this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().left
         } else if (this.opt.slide.position === 'right') {
@@ -694,11 +706,6 @@ export class Mlider {
         this.resetOptOnBp(docSize, true)
     }
 }
-
-
-
-
-
 
 
 

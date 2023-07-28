@@ -15,7 +15,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: false,
+            infinity: true,
             columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
@@ -24,7 +24,6 @@ window.onload = () => {
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 1.75,
-                limit: 0.4,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
@@ -32,9 +31,9 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [3],
-                position: 'center',
-                step: 1,
+                preView: [2, 3],
+                position: 'left',
+                // step: 1,
             },
             breakpoint: {
                 1024: {
