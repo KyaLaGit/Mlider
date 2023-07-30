@@ -348,6 +348,7 @@ export class Mlider {
         if (infinity) this.#setTranslate(this.$subSlideLine,
             { pos: this.opt.subSlideLine.movePoint, colGap: this.opt.subSlideLine.colGapPoint })
 
+
         // others
         this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
@@ -715,3 +716,10 @@ export class Mlider {
 
 // direction++(по клеточкам)
 
+
+
+
+
+function fn(mlider) {
+    console.log(mlider)
+}
