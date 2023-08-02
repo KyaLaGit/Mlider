@@ -1,3 +1,7 @@
+const mliderArr = []
+let curContext
+let mlidersEvent = { click: false, swipe: false, keyboard: false, breakpoint: false }
+
 export class Mlider {
     constructor(selectors, opt) {
         this.selectors = selectors
@@ -245,6 +249,8 @@ export class Mlider {
 
     // GENERATE
     #generate() {
+        this.$slider.setAttribute('data-mlider', '')
+
         // generate slides group
         let slidesJoin = ''
         this.$slides.forEach((slide, ind) => {
@@ -280,6 +286,7 @@ export class Mlider {
         this.updateSlideLineOpt
         this.#generateFlexSizes()
         this.#rectReset(true)
+        this.addMLiderArr
         this.viewSlide(0, { transition: false })
     }
 
@@ -322,7 +329,10 @@ export class Mlider {
         this.$slideLine.style.transition = `transform ${this.opt.transitionTime / 1000}s ease`
     }
 
-
+    get addMLiderArr() {
+        this.$slider.setAttribute('data-mlider-index', mliderArr.length)
+        mliderArr.push(this)
+    }
 
 
 
@@ -347,7 +357,6 @@ export class Mlider {
             { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
         if (infinity) this.#setTranslate(this.$subSlideLine,
             { pos: this.opt.subSlideLine.movePoint, colGap: this.opt.subSlideLine.colGapPoint })
-
 
         // others
         this.setCurrentClasses
@@ -595,12 +604,14 @@ export class Mlider {
 
     // EVENTS
     eventReset() {
-        if (this.$prevBtn || this.$nextBtn || this.$counter) {
-            this.$slider.addEventListener('click', this.#mouseEvent.bind(this))
+        if (!mlidersEvent.click && (this.$prevBtn || this.$nextBtn || this.$counter)) {
+            window.addEventListener('click', this.#clickEvent.bind(this))
+            mlidersEvent.click = true
         }
 
-        if (this.opt.keyboardEvent) {
-            document.addEventListener('keydown', this.#keyboardEvent.bind(this))
+        if (!mlidersEvent.keyboard && this.opt.keyboardEvent) {
+            window.addEventListener('keydown', this.#keyboardEvent.bind(this))
+            mlidersEvent.keyboard = true
         }
 
         if (this.opt.swipeEvent) {
@@ -610,28 +621,39 @@ export class Mlider {
             this.curSwipePointSign = 1
             this.swipeLimitPoint = 0
             this.curSlideRect = this.getCurSlideRect
-            document.addEventListener('mousedown', this.#swipeEvent.bind(this))
-            document.addEventListener('mousemove', this.#swipeEvent.bind(this))
-            document.addEventListener('mouseup', this.#swipeEvent.bind(this))
             this.$slideLine.addEventListener('transitionend', this.#transitionendEvent.bind(this))
+
+            if (!mlidersEvent.swipe) {
+                document.addEventListener('mousedown', this.#swipeEvent.bind(this))
+                document.addEventListener('mousemove', this.#swipeEvent.bind(this))
+                document.addEventListener('mouseup', this.#swipeEvent.bind(this))
+                document.addEventListener('mouseleave', this.#swipeEvent.bind(this))
+                mlidersEvent.swipe = true
+            }
         }
 
-        if (this.opt.breakpoint) {
-            this.breakpointArr = []
+        if (!mlidersEvent.breakpoint && this.opt.breakpoint) {
             window.addEventListener('resize', this.#breakpointEvent.bind(this))
-            this.#breakpointEvent()
+            mlidersEvent.breakpoint = true
         }
     }
 
-    #mouseEvent(e) {
+    #clickEvent(e, context) {
         const elem = e.target
-        if (elem.closest('[data-mlider-type="prev-btn"]')) {
-            this.viewSlide(this.curInd - 1)
-        } else if (elem.closest('[data-mlider-type="next-btn"]')) {
-            this.viewSlide(this.curInd + 1)
-        } else if (elem.closest('[data-mlider-type="dot"]')) {
-            const elemInd = Number(elem.closest('[data-mlider-type="dot"]').getAttribute('data-mlider-index'))
-            this.viewSlide(elemInd)
+
+        if (!context && elem.closest('[data-mlider]')) {
+            this.#clickEvent(e, mliderArr[elem.closest('[data-mlider]').getAttribute("data-mlider-index")])
+        } else if (context) eventFn.bind(context)()
+
+        function eventFn() {
+            if (elem.closest('[data-mlider-type="prev-btn"]')) {
+                this.viewSlide(this.curInd - 1)
+            } else if (elem.closest('[data-mlider-type="next-btn"]')) {
+                this.viewSlide(this.curInd + 1)
+            } else if (elem.closest('[data-mlider-type="dot"]')) {
+                const elemInd = Number(elem.closest('[data-mlider-type="dot"]').getAttribute('data-mlider-index'))
+                this.viewSlide(elemInd)
+            }
         }
     }
 
@@ -640,51 +662,57 @@ export class Mlider {
         const repeat = e.repeat
 
         if (key === 'ArrowLeft' && !repeat) {
-            this.viewSlide(this.curInd - 1)
+            mliderArr.forEach(mlider => {
+                if (mlider.opt.keyboardEvent) mlider.viewSlide(mlider.curInd - 1)
+            })
         } else if (key === 'ArrowRight' && !repeat) {
-            this.viewSlide(this.curInd + 1)
+            mliderArr.forEach(mlider => {
+                if (mlider.opt.keyboardEvent) mlider.viewSlide(mlider.curInd + 1)
+            })
         }
     }
 
     #swipeEvent(e) {
-        const target = e.target
+        const elem = e.target
         const type = e.type
 
-        if (type === 'mousedown' && target.closest('[data-mlider-type="wrapper"]')) {
+        if (type === 'mousedown' && elem.closest('[data-mlider-type="wrapper"]')) {
             this.swipeNullPos = [this.opt.mainSlideRect[this.curInd][this.opt.slide.position], this.opt.mainSlideRect[this.curInd].calcColGap]
             this.totalSwipePoint = this.getCurSlideRect - this.curSlideRect
             this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
             this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
 
-            this.swipe = true
             this.offTransition
+            this.swipe = true
         }
-        if (type === 'mousemove' && this.swipe) {
-            const movement = e.movementX * this.opt.swipeEventOpt.sensitivity
-            if (Math.abs(movement) < this.swipeLimitPoint) {
-                this.totalSwipePoint += movement
-                this.curSwipePoint += movement * this.curSwipePointSign
-                this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
+        if (this.swipe) {
+            if (type === 'mousemove') {
+                const movement = e.movementX * this.opt.swipeEventOpt.sensitivity
+                if (Math.abs(movement) < this.swipeLimitPoint) {
+                    this.totalSwipePoint += movement
+                    this.curSwipePoint += movement * this.curSwipePointSign
+                    this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
 
-                if (Math.abs(this.curSwipePoint) > this.swipeLimitPoint) {
-                    if (movement < 0) {
-                        this.viewSlide(this.curInd + 1, { transition: false, translate: false })
-                        this.curSwipePoint += (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
-                    } else if (movement > 0) {
-                        this.viewSlide(this.curInd - 1, { transition: false, translate: false })
-                        this.curSwipePoint -= (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
+                    if (Math.abs(this.curSwipePoint) > this.swipeLimitPoint) {
+                        if (movement < 0) {
+                            this.viewSlide(this.curInd + 1, { transition: false, translate: false })
+                            this.curSwipePoint += (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
+                        } else if (movement > 0) {
+                            this.viewSlide(this.curInd - 1, { transition: false, translate: false })
+                            this.curSwipePoint -= (Math.abs(this.curSwipePoint) - this.swipeLimitPoint) * this.curSwipePointSign
+                        }
+                        this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
+                        this.curSwipePointSign = -this.curSwipePointSign
                     }
-                    this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
-                    this.curSwipePointSign = -this.curSwipePointSign
                 }
             }
-        }
-        if (type === 'mouseup' && this.swipe) {
-            this.swipe = false
-            this.onTransition
-            this.viewSlide(this.curInd)
-        }
 
+            if (type === 'mouseup' || type === 'mouseleave') {
+                this.onTransition
+                this.viewSlide(this.curInd)
+                this.swipe = false
+            }
+        }
     }
 
     #transitionendEvent(e) {
@@ -702,9 +730,11 @@ export class Mlider {
         }
     }
 
-    #breakpointEvent(e) {
+    #breakpointEvent() {
         const docSize = document.documentElement.clientWidth
-        this.resetOptOnBp(docSize, true)
+        mliderArr.forEach(mlider => {
+            if (mlider.opt.breakpoint) mlider.resetOptOnBp(docSize, true)
+        })
     }
 }
 
@@ -715,11 +745,3 @@ export class Mlider {
 // console.time() -> 1-3 ms
 
 // direction++(по клеточкам)
-
-
-
-
-
-function fn(mlider) {
-    console.log(mlider)
-}
