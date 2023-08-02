@@ -21,9 +21,9 @@ window.onload = () => {
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
-            swipeEvent: false,
+            swipeEvent: true,
             swipeEventOpt: {
-                sensitivity: 1.75,
+                sensitivity: 0.8,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
