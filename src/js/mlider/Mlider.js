@@ -616,10 +616,6 @@ export class Mlider {
 
         if (this.opt.swipeEvent) {
             this.swipe = false
-            this.totalSwipePoint = 0
-            this.curSwipePoint = 0
-            this.curSwipePointSign = 1
-            this.swipeLimitPoint = 0
             this.curSlideRect = this.getCurSlideRect
             this.$slideLine.addEventListener('transitionend', this.#transitionendEvent.bind(this))
 
@@ -681,10 +677,12 @@ export class Mlider {
             this.#swipeEvent.bind(context)(e)
         } else if (curContext) eventFn.bind(curContext)()
 
-        function eventFn(){
+        function eventFn() {
             if (type === 'mousedown' && elem.closest('[data-mlider-type="wrapper"]')) {
                 this.swipeNullPos = [this.opt.mainSlideRect[this.curInd][this.opt.slide.position], this.opt.mainSlideRect[this.curInd].calcColGap]
                 this.totalSwipePoint = this.getCurSlideRect - this.curSlideRect
+                this.curSwipePoint = this.getCurSlideRect - this.curSlideRect
+                this.curSwipePointSign = 1
                 this.swipeLimitPoint = (this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap) / 2
                 this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
 
