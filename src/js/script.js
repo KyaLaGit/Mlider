@@ -23,7 +23,8 @@ window.onload = () => {
             keyboardEvent: true,
             swipeEvent: true,
             swipeEventOpt: {
-                sensitivity: 1.3,
+                sensitivity: 100,
+                free: true,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
