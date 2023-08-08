@@ -353,8 +353,6 @@ export class Mlider {
             : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
         this.#slideShift()
 
-        console.log('viewSlide', this.action)
-
         // main actions
         if (transform) this.#setTranslate(this.$slideLine,
             { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
@@ -619,8 +617,7 @@ export class Mlider {
 
         if (this.opt.swipeEvent) {
             this.swipe = false
-            this.curSlideRect = this.getCurSlideRect
-            this.$slideLine.addEventListener('transitionend', this.#transitionendEvent.bind(this))
+            this.$slideLine.addEventListener('transitionend', this.#transitionendEvent.bind(this)())
 
             if (!mlidersEvent.swipe) {
                 document.addEventListener('mousedown', this.#swipeEvent.bind(this))
@@ -682,12 +679,11 @@ export class Mlider {
 
         function eventFn() {
             if (type === 'mousedown' && elem.closest('[data-mlider-type="wrapper"]')) {
-                this.swipeNullPos = [this.opt.mainSlideRect[this.curInd][this.opt.slide.position], this.opt.mainSlideRect[this.curInd].calcColGap]
+                this.saveInitialSlidePos
                 this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
-                this.totalSwipePoint = this.getCurSlideRect - this.curSlideRect - (this.swipeLimitPoint / 2)
-                this.swipeRepeat = 1
-                // this.curSwipePointSign = 1
-                this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint + (this.swipeLimitPoint / 2) })
+                this.swipePoint = this.getCurSlideRect - this.initialSlideRect
+                this.swipeRemainPoint = this.swipePoint + this.swipeLimitPoint / 2
+                this.#setTranslate(this.$slideLine, { pos: this.initialSlidePos.pos, colGap: this.initialSlidePos.colGap, swipe: this.swipePoint })
 
                 this.offTransition
                 this.swipe = true
@@ -695,37 +691,31 @@ export class Mlider {
             if (this.swipe) {
                 if (type === 'mousemove') {
                     let movement = e.movementX
+
                     if (Math.abs(movement) < this.swipeLimitPoint && movement !== 0) {
                         movement *= this.opt.swipeEventOpt.sensitivity
+                        const sign = movement > 0 ? 1 : -1
 
                         for (let i = 0; i < Math.ceil(Math.abs(movement) / this.swipeLimitPoint); i++) {
-                            if (Math.abs(movement) >= this.swipeLimitPoint) {
-                                console.log('!!!!!!!')
-                                this.totalSwipePoint += this.swipeLimitPoint
-                                if (i % 2 !== 0) {
-                                    if (movement > 0) {
-                                        movement -= this.swipeLimitPoint
-                                        this.viewSlide(this.curInd - 1, { transition: false, transform: false })
-                                    } else {
-                                        movement += this.swipeLimitPoint
-                                        this.viewSlide(this.curInd + 1, { transition: false, transform: false })
-                                    }
-                                }
-                                this.swipeRepeat += 2
+                            if (Math.abs(movement) / this.swipeLimitPoint >= 1) {
+                                this.swipePoint += this.swipeLimitPoint * sign
+                                this.swipeRemainPoint += this.swipeLimitPoint * sign
                             } else {
-                                this.totalSwipePoint += movement
-                                if (Math.abs(this.totalSwipePoint) - (this.swipeLimitPoint * this.swipeRepeat) > 0) {
-                                    if (movement > 0) {
-                                        this.viewSlide(this.curInd - 1, { transition: false, transform: false })
-                                    } else {
-                                        this.viewSlide(this.curInd + 1, { transition: false, transform: false })
-                                    }
-                                    this.swipeRepeat += 2
-                                }
+                                this.swipePoint += movement
+                                this.swipeRemainPoint += movement
                             }
 
-                            this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
-                            this.#setTranslate(this.$slideLine, { pos: this.swipeNullPos[0], colGap: this.swipeNullPos[1], swipe: this.totalSwipePoint })
+                            if (this.swipeRemainPoint > this.swipeLimitPoint) {
+                                this.viewSlide(this.curInd - 1, { transition: false, transform: false })
+                                this.swipeRemainPoint -= this.swipeLimitPoint
+                                this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
+                            } else if (this.swipeRemainPoint < 0) {
+                                this.viewSlide(this.curInd + 1, { transition: false, transform: false })
+                                this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
+                                this.swipeRemainPoint += this.swipeLimitPoint
+                            }
+
+                            this.#setTranslate(this.$slideLine, { pos: this.initialSlidePos.pos, colGap: this.initialSlidePos.colGap, swipe: this.swipePoint })
                         }
                     }
                 }
@@ -734,6 +724,7 @@ export class Mlider {
                     this.onTransition
                     this.viewSlide(this.curInd, { transform: !this.opt.swipeEventOpt.free })
                     this.swipe = false
+                    this.initialSlidePos = null
                     curContext = undefined
                 }
             }
@@ -741,7 +732,7 @@ export class Mlider {
     }
 
     #transitionendEvent(e) {
-        this.swipeNullPos = this.getCurSlideRect
+        this.initialSlideRect = this.getCurSlideRect
     }
 
     get getCurSlideRect() {
@@ -752,6 +743,15 @@ export class Mlider {
         } else if (this.opt.slide.position === 'center') {
             return this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().left
                 + (this.opt.mainSlideRect[this.curInd].slides[0].link.getBoundingClientRect().width / 2)
+        }
+    }
+
+    get saveInitialSlidePos() {
+        if (!this.initialSlidePos) {
+            this.initialSlidePos = {
+                pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position],
+                colGap: this.opt.mainSlideRect[this.curInd].calcColGap,
+            }
         }
     }
 
