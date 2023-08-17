@@ -24,7 +24,7 @@ window.onload = () => {
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 2,
-                free: true,
+                free: false,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {

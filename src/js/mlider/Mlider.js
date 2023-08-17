@@ -684,13 +684,16 @@ export class Mlider {
 
             if (this.swipe) {
                 if (type === 'mousemove') move.bind(this)()
-                if (type === 'mouseup') translateAfterMove.bind(this)()
+                if (type === 'mouseup') swipeEnd.bind(this)(true)
                 if (type === 'mouseleave') swipeEnd.bind(this)()
             }
         }
 
         function swipeStart() {
+            clearInterval(this.kickbackInterval)
+
             this.saveInitialSlidePos
+            this.prevSwipe = 0
             this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
             this.swipePoint = this.getCurSlideRect - this.initialSlideRect
             this.swipeRemainPoint = this.swipePoint + this.swipeLimitPoint / 2
@@ -734,49 +737,44 @@ export class Mlider {
             }
         }
 
-        function swipeEnd() {
-            this.viewSlide(this.curInd, { transform: !this.opt.swipeEventOpt.free, transition: false })
+        function swipeEnd(kb = false) {
             this.swipe = false
-            this.initialSlidePos = null
             curContext = undefined
+            if (!kb) this.viewSlide(this.curInd, { transform: !this.opt.swipeEventOpt.free, transition: false })
+            else kickback.bind(this)()
         }
 
-        function translateAfterMove() {
-            const lastSwipe = this.prevSwipe * this.opt.swipeEventOpt.sensitivity
-            const sign = lastSwipe > 0 ? 1 : -1
-            const pointQant = Math.abs(lastSwipe / 5)
+        function kickback() {
+            const lastSwipe = this.prevSwipe
             const kickbackArr = [lastSwipe]
+            const sign = lastSwipe > 0 ? 1 : -1
+            let pointQant = Math.abs(lastSwipe * 1)
+            pointQant < 1 ? pointQant = 1 : null
 
-            for (let i = pointQant; i > 0; i--) {
+            for (let i = 1; ; i++) {
                 const lastVal = Math.abs(kickbackArr[kickbackArr.length - 1])
-                if (lastVal === 0) break
-                const newVal = (lastVal - Math.abs((lastSwipe / i))) * sign
+                let newVal = lastVal - (Math.abs(lastSwipe) / (pointQant - i))
+                newVal *= sign
 
                 if (sign > 0) {
-                    if (newVal > 0) kickbackArr.push(newVal)
-                    else kickbackArr.push(0)
+                    if (newVal > 15) kickbackArr.push(newVal)
+                    else { kickbackArr.push(0); break }
                 } else {
-                    if (newVal < 0) kickbackArr.push(newVal)
-                    else kickbackArr.push(0)
+                    if (newVal < -15) kickbackArr.push(newVal)
+                    else { kickbackArr.push(0); break }
                 }
-
             }
 
             let i = 0
-            const interval = setInterval(() => {
+            this.kickbackInterval = setInterval(() => {
                 const val = kickbackArr[i]
                 move.bind(this)(val)
                 i++
                 if (i > kickbackArr.length - 1) {
-                    swipeEnd.bind(this)()
-                    clearInterval(interval)
+                    clearInterval(this.kickbackInterval)
+                    this.viewSlide(this.curInd, { transform: !this.opt.swipeEventOpt.free })
                 }
-            }, 10)
-
-
-
-            console.log("kickbackArr:", kickbackArr)
-
+            }, Math.abs(lastSwipe) / 15)
         }
     }
 
@@ -796,11 +794,9 @@ export class Mlider {
     }
 
     get saveInitialSlidePos() {
-        if (!this.initialSlidePos) {
-            this.initialSlidePos = {
-                pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position],
-                colGap: this.opt.mainSlideRect[this.curInd].calcColGap,
-            }
+        this.initialSlidePos = {
+            pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position],
+            colGap: this.opt.mainSlideRect[this.curInd].calcColGap,
         }
     }
 
