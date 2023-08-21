@@ -24,7 +24,7 @@ window.onload = () => {
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 2,
-                free: false,
+                free: true,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
@@ -79,7 +79,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: false,
+            infinity: true,
             columnGap: 50,
             transitionTime: 500,
             // currentClass: 'asd',
@@ -88,6 +88,7 @@ window.onload = () => {
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 1,
+                free: false,
             },
             // autoViewSlide: false,
             // autoViewSlideOpt: {
@@ -131,4 +132,3 @@ window.onload = () => {
     )
 
 }
-

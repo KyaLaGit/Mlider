@@ -359,6 +359,8 @@ export class Mlider {
         if (infinity) this.#setTranslate(this.$subSlideLine,
             { pos: this.opt.subSlideLine.movePoint, colGap: this.opt.subSlideLine.colGapPoint })
 
+        this.test()
+
         // others
         this.setCurrentClasses
         this.opt.autoViewSlide ? this.#intervalView() : null
@@ -746,21 +748,22 @@ export class Mlider {
 
         function kickback() {
             const lastSwipe = this.prevSwipe
-            const kickbackArr = [lastSwipe]
+            let kickbackArr = [lastSwipe]
             const sign = lastSwipe > 0 ? 1 : -1
-            let pointQant = Math.abs(lastSwipe * 1)
+            let pointQant = Math.abs(lastSwipe * 0.2)
             pointQant < 1 ? pointQant = 1 : null
 
             for (let i = 1; ; i++) {
-                const lastVal = Math.abs(kickbackArr[kickbackArr.length - 1])
-                let newVal = lastVal - (Math.abs(lastSwipe) / (pointQant - i))
+                const lastAbsVal = Math.abs(kickbackArr[kickbackArr.length - 1])
+                const minus = lastAbsVal / pointQant
+                let newVal = lastAbsVal - minus
                 newVal *= sign
 
                 if (sign > 0) {
-                    if (newVal > 15) kickbackArr.push(newVal)
+                    if (newVal > 1) kickbackArr.push(newVal)
                     else { kickbackArr.push(0); break }
                 } else {
-                    if (newVal < -15) kickbackArr.push(newVal)
+                    if (newVal < -1) kickbackArr.push(newVal)
                     else { kickbackArr.push(0); break }
                 }
             }
@@ -774,7 +777,7 @@ export class Mlider {
                     clearInterval(this.kickbackInterval)
                     this.viewSlide(this.curInd, { transform: !this.opt.swipeEventOpt.free })
                 }
-            }, Math.abs(lastSwipe) / 15)
+            }, 1)
         }
     }
 
@@ -805,6 +808,15 @@ export class Mlider {
         mliderArr.forEach(mlider => {
             if (mlider.opt.breakpoint) mlider.resetOptOnBp(docSize, true)
         })
+    }
+
+
+
+
+
+
+
+    test() {
     }
 }
 
