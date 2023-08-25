@@ -286,7 +286,7 @@ export class Mlider {
         this.action = 0
         this.updateSlideLineOpt
         this.#generateFlexSizes()
-        this.#rectReset(true)
+        this.#rectReset({ first: true })
         this.addMLiderArr
         this.viewSlide(0, { transition: false })
     }
@@ -341,7 +341,7 @@ export class Mlider {
 
 
     // VIEW SLIDES
-    viewSlide(ind = 0, { infinity = this.opt.infinity, transition = true, transform = true } = {}) {
+    viewSlide(ind = 0, { infinity = this.opt.infinity, transition = true, transform = true, } = {}) {
         if (transition) this.onTransition
         else this.offTransition
 
@@ -351,11 +351,14 @@ export class Mlider {
         infinity
             ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
             : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
-        this.#slideShift()
+        this.#slideObserver()
 
         // main actions
-        if (transform) this.#setTranslate(this.$slideLine,
-            { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
+        if (transform) {
+            this.#rectReset({ subRectReset: false })
+            this.#setTranslate(this.$slideLine,
+                { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
+        }
         if (infinity) this.#setTranslate(this.$subSlideLine,
             { pos: this.opt.subSlideLine.movePoint, colGap: this.opt.subSlideLine.colGapPoint })
 
@@ -396,7 +399,6 @@ export class Mlider {
             }
         }
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
-        this.#rectReset()
     }
 
     #getCheckInd(index) {
@@ -416,7 +418,7 @@ export class Mlider {
         return index
     }
 
-    #rectReset(first) {
+    #rectReset({ first = false, mainRectReset = true, subRectReset = true } = {}) {
         if (first) {
             this.opt.wrapRect = this.$wrap.getBoundingClientRect()
             this.opt.mainSlideRect = []
@@ -573,6 +575,17 @@ export class Mlider {
         }, this.opt.autoViewSlideOpt.time)
     }
 
+    #slideObserver() {
+
+        this.slideObserverInterval = setInterval(() => {
+
+            this.#checkForChangeCurSlide()
+
+        }, 10)
+
+        // this.#slideShift({ mainRectReset: false })
+    }
+
     get setCurrentClasses() {
         this.$slides.forEach(slide => slide.classList.remove(this.opt.currentClass))
         this.opt.mainSlideRect[this.curInd].slides.forEach(slideOpt => slideOpt.link.classList.add(this.opt.currentClass))
@@ -598,10 +611,26 @@ export class Mlider {
         }
     }
 
+    #checkForChangeCurSlide(change) {
+        const sign = change > 0 ? 1 : -1
+        this.updateLimitPoint
+        for (let i = 0; i < Math.ceil(Math.abs(change) / this.limitPoint); i++) {
+            this.remainPoint += Math.abs(change) / this.limitPoint >= 1 ? this.limitPoint * sign : change
+            if (this.remainPoint > this.limitPoint) {
+                this.viewSlide(this.curInd - 1, { transition: false, transform: false })
+                this.remainPoint -= this.limitPoint
+                this.updateLimitPoint
+            } else if (this.remainPoint < 0) {
+                this.viewSlide(this.curInd + 1, { transition: false, transform: false })
+                this.updateLimitPoint
+                this.remainPoint += this.limitPoint
+            }
+        }
+    }
 
-
-
-
+    set updateLimitPoint(q) {
+        this.limitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
+    }
 
 
 
@@ -713,29 +742,11 @@ export class Mlider {
 
             if (swipe !== 0) {
                 swipe *= this.opt.swipeEventOpt.sensitivity
-                const sign = swipe > 0 ? 1 : -1
 
-                for (let i = 0; i < Math.ceil(Math.abs(swipe) / this.swipeLimitPoint); i++) {
-                    if (Math.abs(swipe) / this.swipeLimitPoint >= 1) {
-                        this.swipePoint += this.swipeLimitPoint * sign
-                        this.swipeRemainPoint += this.swipeLimitPoint * sign
-                    } else {
-                        this.swipePoint += swipe
-                        this.swipeRemainPoint += swipe
-                    }
+                this.changePoint += swipe
+                this.#checkForChangeCurSlide()
+                this.#setTranslate(this.$slideLine, { pos: this.initialSlidePos.pos, colGap: this.initialSlidePos.colGap, swipe: this.changePoint })
 
-                    if (this.swipeRemainPoint > this.swipeLimitPoint) {
-                        this.viewSlide(this.curInd - 1, { transition: false, transform: false })
-                        this.swipeRemainPoint -= this.swipeLimitPoint
-                        this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
-                    } else if (this.swipeRemainPoint < 0) {
-                        this.viewSlide(this.curInd + 1, { transition: false, transform: false })
-                        this.swipeLimitPoint = this.opt.mainSlideRect[this.curInd].width + this.opt.mainSlideRect[this.curInd].step * this.opt.columnGap
-                        this.swipeRemainPoint += this.swipeLimitPoint
-                    }
-
-                    this.#setTranslate(this.$slideLine, { pos: this.initialSlidePos.pos, colGap: this.initialSlidePos.colGap, swipe: this.swipePoint })
-                }
             }
         }
 
