@@ -32,7 +32,7 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2, 3],
+                preView: [2],
                 position: 'left',
                 // step: 1,
             },
@@ -79,7 +79,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: true,
+            infinity: false,
             columnGap: 50,
             transitionTime: 500,
             // currentClass: 'asd',
