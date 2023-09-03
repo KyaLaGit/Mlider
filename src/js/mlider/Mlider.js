@@ -344,24 +344,27 @@ export class Mlider {
     viewSlide(ind = 0, { first = true, infinity = this.opt.infinity, transition = true } = {}) {
         if (transition) this.onTransition
         else this.offTransition
-        console.log('view')
-
-        // index and actions
-        this.prevInd = this.curInd
-        this.curInd = this.#getCheckInd(ind)
-        infinity
-            ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
-            : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
-        console.log(" this.action:", this.action)
 
         // main actions
-        if (first && transition) {
-            this.slideLineLeft = this.getSlideLineLeft
+        if (first || !transition) {
+            const newInd = this.#getCheckInd(ind)
+            infinity
+                ? this.action = this.opt.mainSlideRect[newInd].pos - Math.floor(this.mainSlideLngth / 2)
+                : this.action = this.opt.mainSlideRect[newInd].pos - newInd
+            console.log("this.action:", this.action)
             this.#rectUpdate(this.action, { subRectReset: false })
             this.#setTranslate(this.$slideLine,
-                { pos: this.opt.mainSlideRect[this.curInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[this.curInd].calcColGap })
-            this.#changeSlideObserver()
-        } else {
+                { pos: this.opt.mainSlideRect[newInd][this.opt.slide.position], colGap: this.opt.mainSlideRect[newInd].calcColGap })
+            if (transition) this.#changeSlideObserver()
+
+        }
+        if (!first || !transition) {
+            this.prevInd = this.curInd
+            this.curInd = this.#getCheckInd(ind)
+            infinity
+                ? this.action = this.opt.mainSlideRect[this.curInd].pos - Math.floor(this.mainSlideLngth / 2)
+                : this.action = this.opt.mainSlideRect[this.curInd].pos - this.curInd
+
             this.#slideShift()
             this.#rectUpdate(this.action, { mainRectReset: false })
             if (this.opt.infinity) this.#setTranslate(this.$subSlideLine,
@@ -372,7 +375,9 @@ export class Mlider {
     }
 
     #changeSlideObserver() {
-        this.remainPoint = 0
+        this.limitPoint = this.getLimitPoint
+        this.remainPoint = this.limitPoint / 2
+
         this.slideObserverInterval = setInterval(() => {
             const newSldieLineLeft = this.getSlideLineLeft
             const absChange = Math.abs(Math.abs(this.slideLineLeft) - Math.abs(newSldieLineLeft))
@@ -384,10 +389,9 @@ export class Mlider {
 
     #checkForChangeCurSlide(change) {
         const sign = change > 0 ? 1 : -1
-        this.limitPoint = this.getLimitPoint
         for (let i = 0; i < Math.ceil(Math.abs(change) / this.limitPoint); i++) {
             this.remainPoint += Math.abs(change) / this.limitPoint >= 1 ? this.limitPoint * sign : change
-            if (this.remainPoint > this.limitPoint) {
+            if (this.remainPoint >= this.limitPoint) {
                 this.viewSlide(this.prevInd + 1, { first: false })
                 this.remainPoint -= this.limitPoint
                 this.limitPoint = this.getLimitPoint
@@ -414,18 +418,16 @@ export class Mlider {
         for (let i = 0; i < Math.abs(this.action); i++) {
             if (this.action > 0) {
                 for (let v = 0; v < this.opt.rectByPos(0).slides.length; v++) {
-                    const slide = this.opt.rectByPos(0).slides[v].link
+                    const slide = this.$slideLine.children[0]
                     this.$slideLine.insertAdjacentHTML('beforeend', `${slide.outerHTML}`)
                     slide.remove()
                 }
-                this.opt.rectPosUpdate(1)
             } else if (this.action < 0) {
                 for (let v = this.opt.rectByPos(this.mainSlideLngth - 1).slides.length - 1; v >= 0; v--) {
-                    const slide = this.opt.rectByPos(this.mainSlideLngth - 1).slides[v].link
+                    const slide = this.$slideLine.children[this.$slideLine.children.length - 1]
                     this.$slideLine.insertAdjacentHTML('afterbegin', `${slide.outerHTML}`)
                     slide.remove()
                 }
-                this.opt.rectPosUpdate(-1)
             }
         }
         this.$slides = this.$slider.querySelectorAll('.slide-mlider')
@@ -555,10 +557,14 @@ export class Mlider {
                     this.opt.subSlideLine.colGapPoint += curCalcColGap
                     this.opt.subSlideLine.movePoint += (curRect.width + gap * curRect.step) - curCalcColGap
 
+                    this.remainPoint += (curRect.width + gap * curRect.step) - curCalcColGap + curCalcColGap
+
                     curRect.slides.forEach(slide =>
                         slide.link = this.$slideLine.querySelector(`[data-mlider-index="${slide.link.getAttribute('data-mlider-index')}"]`)
                     )
                 }
+
+                this.opt.rectPosUpdate(1)
             } else {
                 const curRect = this.opt.rectByPos(i - 1)
                 const nextRect = this.opt.rectByPos(i)
@@ -583,10 +589,14 @@ export class Mlider {
                     this.opt.subSlideLine.colGapPoint -= curCalcColGap
                     this.opt.subSlideLine.movePoint -= (curRect.width + gap * curRect.step) - curCalcColGap
 
+                    this.remainPoint -= (curRect.width + gap * curRect.step) - curCalcColGap + curCalcColGap
+
                     curRect.slides.forEach(slide =>
                         slide.link = this.$slideLine.querySelector(`[data-mlider-index="${slide.link.getAttribute('data-mlider-index')}"]`)
                     )
                 }
+
+                this.opt.rectPosUpdate(-1)
             }
 
         }
