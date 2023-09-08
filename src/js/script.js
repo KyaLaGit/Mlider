@@ -17,7 +17,7 @@ window.onload = () => {
         {
             infinity: true,
             columnGap: 40,
-            transitionTime: 1500,
+            transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
             keyboardEvent: true,
@@ -31,38 +31,39 @@ window.onload = () => {
             // time: 0,
             // direction: 'right',
             // },
+            syncViewSlide: false,
             slide: {
                 preView: [2],
                 position: 'left',
                 // step: 1,
             },
-            breakpoint: {
-                1024: {
-                    slide: {
-                        preView: [3],
-                        // position: 'left',
-                        // step: 1,
-                    },
-                    transitionTime: 1300,
-                },
-                768: {
-                    slide: {
-                        preView: [1.9],
-                        position: 'right',
-                        // step: 1,
-                    },
-                    transitionTime: 500,
-                    columnGap: 30,
-                },
-                425: {
-                    slide: {
-                        preView: [1.2],
-                        position: 'left',
-                        // step: 1,
-                    },
-                    columnGap: 10,
-                }
-            },
+            // breakpoint: {
+            //     1024: {
+            //         slide: {
+            //             preView: [3],
+            //             // position: 'left',
+            //             // step: 1,
+            //         },
+            //         transitionTime: 1300,
+            //     },
+            //     768: {
+            //         slide: {
+            //             preView: [1.9],
+            //             position: 'right',
+            //             // step: 1,
+            //         },
+            //         transitionTime: 500,
+            //         columnGap: 30,
+            //     },
+            //     425: {
+            //         slide: {
+            //             preView: [1.2],
+            //             position: 'left',
+            //             // step: 1,
+            //         },
+            //         columnGap: 10,
+            //     }
+            // },
         }
     )
 
