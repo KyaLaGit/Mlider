@@ -549,8 +549,8 @@ export class Mlider {
                     if (mainRectReset) {
                         if (pos === 'left') {
                             const prevRect = this.opt.slideRect[this.#getCheckInd(this.curInd - 1 - i)]
-                            this.opt.slideLine.movePoint += prevRect.width + gap * prevRect.step - prevRect.calcColGap
-                            this.opt.slideLine.colGapPoint -= prevRect.calcColGap
+                            this.opt.slideLine.movePoint += prevRect.width + gap * prevRect.step + prevRect.calcColGap
+                            this.opt.slideLine.colGapPoint += prevRect.calcColGap
                         } else if (pos === 'right') {
                             calcColGap = curCalcColGap
                             curRect[pos] = prevRect[pos] + curRect.width + gap * curRect.step - calcColGap
@@ -562,8 +562,8 @@ export class Mlider {
 
                     if (subRectReset && !first) {
                         const curRect = this.opt.slideRect[this.#getCheckInd(this.curInd + i)]
-                        this.opt.subSlideLine.movePoint += (curRect.width + gap * curRect.step) - curRect.calcColGap
-                        this.opt.subSlideLine.colGapPoint += curRect.calcColGap
+                        this.opt.subSlideLine.movePoint += curRect.width + gap * curRect.step + curRect.calcColGap
+                        this.opt.subSlideLine.colGapPoint -= curRect.calcColGap
 
                         // this.remainPoint -= (curRect.width + gap * curRect.step)
 
