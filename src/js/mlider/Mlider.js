@@ -1,6 +1,4 @@
-const mliderArr = []
-let curContext
-let mlidersEvent = { click: false, swipe: false, keyboard: false, breakpoint: false }
+let mliderArr = [], curContext, mlidersEvent = { click: false, swipe: false, keyboard: false, breakpoint: false }
 
 export class Mlider {
     constructor(selectors, opt) {
