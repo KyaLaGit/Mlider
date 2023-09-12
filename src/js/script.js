@@ -91,6 +91,7 @@ window.onload = () => {
                 sensitivity: 1,
                 free: false,
             },
+            syncViewSlide: false,
             // autoViewSlide: false,
             // autoViewSlideOpt: {
             // time: 0,
