@@ -33,8 +33,8 @@ window.onload = () => {
             // },
             syncViewSlide: false,
             slide: {
-                preView: [2.2, 1, 3],
-                position: 'center',
+                preView: [2.2, 1],
+                position: 'left',
                 // step: 1,
             },
             // breakpoint: {
@@ -85,7 +85,7 @@ window.onload = () => {
             transitionTime: 500,
             // currentClass: 'asd',
             counterInDot: true,
-            keyboardEvent: true,
+            keyboardEvent: false,
             swipeEvent: true,
             swipeEventOpt: {
                 sensitivity: 1,
