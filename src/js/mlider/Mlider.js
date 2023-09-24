@@ -133,7 +133,7 @@ export class Mlider {
         }
     }
 
-    #slideOptRegulation(slideOpt) {
+    #slideOptRegulation(slideOpt, name) {
         if (!slideOpt.preView) slideOpt.preView = this.defualtOptions.slide.preView
         if (!slideOpt.position) slideOpt.position = this.defualtOptions.slide.position
         if (!slideOpt.step) slideOpt.step = slideOpt.preView
@@ -141,19 +141,21 @@ export class Mlider {
         if (!Array.isArray(slideOpt.preView)) slideOpt.preView = [slideOpt.preView]
         if (!Array.isArray(slideOpt.step)) slideOpt.step = [slideOpt.step]
 
-        if (slideOpt.preView.flat().includes(0)) slideOpt.preView = [1]
-        if (slideOpt.step.flat().includes(0)) slideOpt.step = slideOpt.preView
+        // if (slideOpt.preView.flat().includes(0)) slideOpt.preView = [1]
+        // if (slideOpt.step.flat().includes(0)) slideOpt.step = slideOpt.preView
 
         slideOpt.preView = slideOpt.preView.map(opt => {
             if (!Array.isArray(opt)) {
-                const val = opt
-                opt = []
-                for (let i = 0; i < (Math.floor(val) || 1); i++) { opt.push(100 / val) }
+                if (typeof opt === 'number') {
+                    const val = opt
+                    opt = []
+                    for (let i = 0; i < (Math.floor(val) || 1); i++) opt.push(100 / val)
+                } else opt = [opt]
             }
             return opt
         })
         slideOpt.step = slideOpt.step.map(opt => Array.isArray(opt) ? opt.length : (Math.floor(opt) || 1))
-        if (slideOpt.step.every(opt => opt === slideOpt.step[0])) slideOpt.step = [slideOpt.step[0]]
+        // if (slideOpt.step.every(opt => opt === slideOpt.step[0])) slideOpt.step = [slideOpt.step[0]]
 
         this.defualtOptions.slide.preView = slideOpt.preView
         this.defualtOptions.slide.position = slideOpt.position
@@ -212,7 +214,8 @@ export class Mlider {
             return opt.map(opt => {
                 return this.#checkNumberOpt(opt, defOpt, name)
             })
-        } else if (typeof Number(opt) === 'number' && !isNaN(Number(opt))) return Math.abs(Number(opt))
+        } else if (typeof opt === 'number') return Math.abs(opt)
+        else if (typeof opt === 'string') return this.#checkStringOpt(opt, defOpt, name)
         this.#errorLog(name, 'invalid value(!use defualt value!)')
         return defOpt
     }
@@ -227,13 +230,11 @@ export class Mlider {
         if (typeof opt === 'string') {
             opt = opt.trim()
             if (name.toLowerCase().includes('position')) {
-                if (opt === 'left' || opt === 'center' || opt === 'right' || opt === 'auto') {
-                    return opt
-                }
+                if (opt === 'left' || opt === 'center' || opt === 'right' || opt === 'auto') return opt
             } else if (name.toLowerCase().includes('direction')) {
-                if (opt === 'left' || opt === 'right') {
-                    return opt
-                }
+                if (opt === 'left' || opt === 'right') return opt
+            } else if (name.toLowerCase().includes('preview')) {
+                if (/\d+px/.test(opt)) return opt
             }
         }
         this.#errorLog(name, 'invalid value(!use defualt value!)')
@@ -301,8 +302,12 @@ export class Mlider {
         outter: for (let i = 0; ; i === this.opt.slide.preView.length - 1 ? i = 0 : i++) {
             for (let u = 0; u < this.opt.slide.preView[i].length; u++) {
                 if (this.$slides[ind]) {
-                    this.$slides[ind].style.flex = `0 0 calc(${this.opt.slide.preView[i][u]}% - (${this.opt.columnGap}px 
-                        - (${this.opt.columnGap}px / ${this.opt.slide.preView[i].length})))`
+                    const size = this.opt.slide.preView[i][u]
+                    const qant = this.opt.slide.preView[i].length
+                    const gap = this.opt.columnGap
+
+                    if (typeof size === 'string') this.$slides[ind].style.flex = `0 0 ${size}`
+                    else this.$slides[ind].style.flex = `0 0 calc(${size}% - (${gap}px - (${gap}px / ${qant})))`
                     this.opt.slides.push({
                         link: this.$slides[ind],
                         width: this.$slides[ind].getBoundingClientRect().width,
