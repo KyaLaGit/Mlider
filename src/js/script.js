@@ -15,7 +15,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: true,
+            infinity: false,
             columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
@@ -33,8 +33,8 @@ window.onload = () => {
             // },
             syncViewSlide: false,
             slide: {
-                preView: ['500px', 2, ['300px', '700px']],
-                position: 'left',
+                preView: [[30, '200px', 30], 2],
+                position: 'center',
                 // step: 1,
             },
             // breakpoint: {
@@ -98,7 +98,7 @@ window.onload = () => {
             // direction: 'right',
             // },
             slide: {
-                preView: [2],
+                preView: [2, [30, 50]],
                 position: 'center',
                 step: 1,
             },
