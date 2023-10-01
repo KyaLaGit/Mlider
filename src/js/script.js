@@ -33,7 +33,7 @@ window.onload = () => {
             // },
             syncViewSlide: false,
             slide: {
-                preView: ['600px', [40, 60]],
+                preView: [1.4, [40, 60]],
                 position: 'right',
                 // step: 1,
             },

@@ -509,7 +509,7 @@ export class Mlider {
             mainRect.step = curStep
             mainRect.width = curWdth
             mainRect.gapWdth = curWdth + gap * (curStep - 1)
-            mainRect.perGapWidth = perGapWidth - gap
+            mainRect.perGapWidth = perGapWidth !== 0 ? perGapWidth - gap : 0
             mainRect.slides = curSlides
             mainRect.calcColGap = calcColGap
 
