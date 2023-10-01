@@ -15,7 +15,7 @@ window.onload = () => {
         },
         // Options
         {
-            infinity: true,
+            infinity: false,
             columnGap: 40,
             transitionTime: 500,
             // currentClass: 'asd',
@@ -33,7 +33,7 @@ window.onload = () => {
             // },
             syncViewSlide: false,
             slide: {
-                preView: [1.2, [40, 60]],
+                preView: ['600px', [40, 60]],
                 position: 'right',
                 // step: 1,
             },

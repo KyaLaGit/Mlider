@@ -302,11 +302,11 @@ export class Mlider {
         outter: for (let i = 0; ; i === this.opt.slide.preView.length - 1 ? i = 0 : i++) {
             for (let u = 0; u < this.opt.slide.preView[i].length; u++) {
                 if (this.$slides[ind]) {
-                    const size = this.opt.slide.preView[i][u]
+                    let size = this.opt.slide.preView[i][u], gap = 0
+                    if (!size.includes('%')) size = parseInt(size) / 16 + 'rem'; gap = this.opt.columnGap
                     const qant = this.opt.slide.preView[i].length
-                    const gap = size.includes('%') ? this.opt.columnGap : 0
 
-                    this.$slides[ind].style.flex = `0 0 calc(${size} - (${gap}px - (${gap}px / ${qant})))`
+                    this.$slides[ind].style.flex = `0 0 calc(${size} - (${gap / 16}rem - (${gap / 16}rem / ${qant})))`
                     this.opt.slides.push({
                         link: this.$slides[ind],
                         width: this.$slides[ind].getBoundingClientRect().width,
@@ -322,7 +322,7 @@ export class Mlider {
     }
 
     get updateSlideLineOpt() {
-        this.$slideLine.style.columnGap = `${this.opt.columnGap}px`
+        this.$slideLine.style.columnGap = `${this.opt.columnGap / 16}rem`
         this.slideLineWidth = this.$slideLine.clientWidth
     }
 
@@ -425,11 +425,10 @@ export class Mlider {
         if (main) {
             opt.mainMovePoint = -opt.mainMovePoint / this.slideLineWidth * 100
             opt.swipe = opt.swipe ? opt.swipe / this.slideLineWidth * 100 : 0
-            opt.subMovePoint = -opt.subMovePoint
-            this.$slideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${opt.subMovePoint}px + ${opt.colGapPoint}px + ${opt.swipe}%))`
+            this.$slideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${-opt.subMovePoint / 16}rem + ${opt.colGapPoint / 16}rem + ${opt.swipe}%))`
         } else {
             opt.mainMovePoint = opt.mainMovePoint / this.slideLineWidth * 100
-            this.$subSlideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${opt.subMovePoint}px + ${opt.colGapPoint}px))`
+            this.$subSlideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${opt.subMovePoint / 16}rem + ${opt.colGapPoint / 16}rem))`
         }
     }
 
