@@ -228,7 +228,7 @@ export class Mlider {
 
     #checkStringOpt(opt, defOpt, name) {
         if (typeof opt === 'string') {
-            opt = opt.trim()
+            opt = opt.trim().toLowerCase()
             if (name.toLowerCase().includes('position')) {
                 if (opt === 'left' || opt === 'center' || opt === 'right' || opt === 'auto') return opt
             } else if (name.toLowerCase().includes('direction')) {
@@ -353,10 +353,7 @@ export class Mlider {
             let act = this.#getAct(this.curInd, this.#getCheckInd(ind))
             this.curInd = this.#getCheckInd(ind)
             this.#rectUpdate({ act, ind: this.curInd }, { mainUpdate: true })
-            this.#setTranslate(this.$slideLine, {
-                mainPos: this.opt.slideLine.mainMovePoint,
-                subPos: this.opt.slideLine.subMovePoint, colGap: this.opt.slideLine.colGapPoint
-            })
+            this.#setTranslate(true)
             if (syncViewSlide) this.#syncViewSlide(null, { translate: false, syncViewSlide: false })
         }
         console.log("this.opt.slideRect:", this.opt.slideRect)
@@ -365,10 +362,8 @@ export class Mlider {
             this.trueInd = this.#getCheckInd(ind)
             if (infinity) shiftAct = this.opt.slideRect[this.trueInd].pos - Math.floor(this.mainSlideLngth / 2)
             else shiftAct = this.opt.slideRect[this.trueInd].pos - this.trueInd
-
             this.#slideShift(shiftAct)
-            this.#setTranslate(this.$subSlideLine,
-                { mainPos: this.opt.subSlideLine.mainMovePoint, colGap: this.opt.subSlideLine.colGapPoint })
+            this.#setTranslate(false)
             this.#setCurrentClasses(this.trueInd)
         }
     }
@@ -425,15 +420,16 @@ export class Mlider {
         }
     }
 
-    #setTranslate(line, { mainPos = 0, subPos = 0, colGap = 0, swipe = 0 } = {}) {
-        if (line === this.$slideLine) {
-            mainPos = -mainPos / this.slideLineWidth * 100
-            swipe = swipe / this.slideLineWidth * 100
-            subPos = -subPos
-            this.$slideLine.style.transform = `translateX(calc(${mainPos}% + ${subPos}px + ${colGap}px + ${swipe}%))`
-        } else if (line === this.$subSlideLine) {
-            mainPos = mainPos / this.slideLineWidth * 100
-            this.$subSlideLine.style.transform = `translateX(calc(${mainPos}% + ${subPos}px + ${colGap}px))`
+    #setTranslate(main, opt = {}) {
+        opt = Object.assign(opt, (main ? this.opt.slideLine : this.opt.subSlideLine))
+        if (main) {
+            opt.mainMovePoint = -opt.mainMovePoint / this.slideLineWidth * 100
+            opt.swipe = opt.swipe ? opt.swipe / this.slideLineWidth * 100 : 0
+            opt.subMovePoint = -opt.subMovePoint
+            this.$slideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${opt.subMovePoint}px + ${opt.colGapPoint}px + ${opt.swipe}%))`
+        } else {
+            opt.mainMovePoint = opt.mainMovePoint / this.slideLineWidth * 100
+            this.$subSlideLine.style.transform = `translateX(calc(${opt.mainMovePoint}% + ${opt.subMovePoint}px + ${opt.colGapPoint}px))`
         }
     }
 
@@ -564,16 +560,12 @@ export class Mlider {
             for (let i = 0; i < Math.abs(act); i++) {
                 if (act > 0) {
                     if (mainUpdate) {
-                        let curRect
+                        let curRect = {}
                         if (pos === 'left') curRect = this.opt.slideRect[this.#getCheckInd(ind - 1 - i)]
                         else if (pos === 'right') curRect = this.opt.slideRect[this.#getCheckInd(ind - i)]
                         else if (pos === 'center') {
                             let rect1 = this.opt.slideRect[this.#getCheckInd(ind - 1 - i)], rect2 = this.opt.slideRect[this.#getCheckInd(ind - i)]
-                            curRect = {
-                                calcColGap: (rect1.calcColGap + rect2.calcColGap) / 2,
-                                gapWdth: (rect1.gapWdth + rect2.gapWdth) / 2,
-                                perGapWidth: (rect1.perGapWidth + rect2.perGapWidth) / 2,
-                            }
+                            for (let i in rect1) { if (typeof rect1[i] === 'number') curRect[i] = (rect1[i] + rect2[i]) / 2 }
                         }
                         this.opt.slideLine.mainMovePoint += curRect.perGapWidth + gap - curRect.calcColGap
                         this.opt.slideLine.subMovePoint += curRect.gapWdth - curRect.perGapWidth
@@ -582,24 +574,20 @@ export class Mlider {
 
                     if (subUpdate) {
                         const curRect = this.opt.getRectByPos(this.mainSlideLngth - 1 - i)
-                        const curRectGapWdth = curRect.width + gap * curRect.step
-                        this.opt.subSlideLine.mainMovePoint += curRectGapWdth - curRect.calcColGap
+                        this.opt.subSlideLine.mainMovePoint += curRect.perGapWidth + gap - curRect.calcColGap
+                        this.opt.subSlideLine.subMovePoint += curRect.gapWdth - curRect.perGapWidth
                         this.opt.subSlideLine.colGapPoint += curRect.calcColGap
 
-                        if (this.stObserve) this.shiftPoint = -curRectGapWdth
+                        if (this.stObserve) this.shiftPoint = -curRect.gapWdth
                     }
                 } else {
                     if (mainUpdate) {
-                        let curRect
+                        let curRect = {}
                         if (pos === 'left') curRect = this.opt.slideRect[this.#getCheckInd(ind + i)]
                         else if (pos === 'right') curRect = this.opt.slideRect[this.#getCheckInd(ind + 1 + i)]
                         else if (pos === 'center') {
                             let rect1 = this.opt.slideRect[this.#getCheckInd(ind + 1 + i)], rect2 = this.opt.slideRect[this.#getCheckInd(ind + i)]
-                            curRect = {
-                                calcColGap: (rect1.calcColGap + rect2.calcColGap) / 2,
-                                gapWdth: (rect1.gapWdth + rect2.gapWdth) / 2,
-                                perGapWidth: (rect1.perGapWidth + rect2.perGapWidth) / 2,
-                            }
+                            for (let i in rect1) { if (typeof rect1[i] === 'number') curRect[i] = (rect1[i] + rect2[i]) / 2 }
                         }
                         this.opt.slideLine.mainMovePoint -= curRect.perGapWidth + gap - curRect.calcColGap
                         this.opt.slideLine.subMovePoint -= curRect.gapWdth - curRect.perGapWidth
@@ -608,11 +596,11 @@ export class Mlider {
 
                     if (subUpdate) {
                         const curRect = this.opt.getRectByPos(i)
-                        const curRectGapWdth = curRect.width + gap * curRect.step
-                        this.opt.subSlideLine.mainMovePoint -= curRectGapWdth - curRect.calcColGap
+                        this.opt.subSlideLine.mainMovePoint -= curRect.perGapWidth + gap - curRect.calcColGap
+                        this.opt.subSlideLine.subMovePoint -= curRect.gapWdth - curRect.perGapWidth
                         this.opt.subSlideLine.colGapPoint -= curRect.calcColGap
 
-                        if (this.stObserve) this.shiftPoint = curRectGapWdth
+                        if (this.stObserve) this.shiftPoint = curRect.gapWdth
                     }
                 }
 
